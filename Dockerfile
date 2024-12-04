@@ -7,7 +7,7 @@ COPY check/ check/
 COPY cmd/ cmd/
 COPY internal/ internal/
 ARG KUBEBENCH_VERSION
-RUN make build && cp kube-bench /go/bin/kube-bench
+RUN cp kube-bench-zh-amd /go/bin/kube-bench-zh-amd
 
 # Add kubectl to run policies checks
 ARG KUBECTL_VERSION TARGETARCH
@@ -42,7 +42,7 @@ RUN apk add jq
 
 ENV PATH=$PATH:/usr/local/mount-from-host/bin
 
-COPY --from=build /go/bin/kube-bench /usr/local/bin/kube-bench
+COPY --from=build /go/bin/kube-bench-zh-amd /usr/local/bin/kube-bench-zh-amd
 COPY --from=build /usr/local/bin/kubectl /usr/local/bin/kubectl
 COPY entrypoint.sh .
 COPY cfg/ cfg/
@@ -54,9 +54,9 @@ CMD ["install"]
 ARG BUILD_DATE
 ARG VCS_REF
 LABEL org.label-schema.build-date=$BUILD_DATE \
-    org.label-schema.name="kube-bench" \
+    org.label-schema.name="kube-bench-zh-amd" \
     org.label-schema.description="Run the CIS Kubernetes Benchmark tests" \
-    org.label-schema.url="https://github.com/aquasecurity/kube-bench" \
+    org.label-schema.url="https://github.com/aquasecurity/kube-bench-zh-amd" \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.vcs-url="https://github.com/aquasecurity/kube-bench" \
+    org.label-schema.vcs-url="https://github.com/aquasecurity/kube-bench-zh-amd" \
     org.label-schema.schema-version="1.0"
