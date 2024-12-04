@@ -22,7 +22,7 @@
 >
 > Tests are configured with YAML files, making this tool easy to update as test specifications evolve.
 
-本项目对开源的[kube-bench](https://github.com/aquasecurity/kube-bench)做了汉化，方便日常工作处理。对于扫描结果的汉化，是通过编写python脚本调用chat-gpt 3.5的API对配置文件内容做了英译中，然后替换了对应的text和remediation字段内容。
+本项目对开源的[kube-bench](https://github.com/aquasecurity/kube-bench)做了汉化，方便日常工作处理。对于扫描结果的汉化，是通过编写[python脚本](https://github.com/Oakleysecurity/kube-bench-zh/blob/kube-bench-zh/chat-translate.py)调用chat-gpt 3.5的API对配置文件内容做了英译中，然后替换了对应的text和remediation字段内容。
 
 - 命令参数注释汉化
 - 扫描结果汉化
