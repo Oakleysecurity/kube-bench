@@ -1,14 +1,13 @@
----
 controls:
 version: "eks-1.2.0"
 id: 2
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 2.1
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 2.1.1
-        text: "Enable audit logs (Manual)"
-        remediation: "Enable control plane logging for API Server, Audit, Authenticator, Controller Manager, and Scheduler."
+        text: "启用审计日志（手动）。"
+        remediation: "启用 API Server、审计、认证器、控制器管理器和调度器的控制平面日志记录。"
         scored: false

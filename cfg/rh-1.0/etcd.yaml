@@ -1,15 +1,14 @@
----
 controls:
 version: rh-1.0
 id: 2
-text: "Etcd Node Configuration"
+text: "Etcd 节点配置"
 type: "etcd"
 groups:
   - id: 2
-    text: "Etcd Node Configuration Files"
+    text: "Etcd 节点配置文件"
     checks:
       - id: 2.1
-        text: "Ensure that the --cert-file and --key-file arguments are set as appropriate (Manual)"
+        text: "确保将 --cert-file 和 --key-file 参数设置为适当的数值（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -29,13 +28,12 @@ groups:
               compare:
                 op: regex
                 value: '\/etc\/kubernetes\/static-pod-certs\/secrets\/etcd-all-serving\/etcd-serving-.*\.(?:crt|key)'
-        remediation: |
-          OpenShift does not use the etcd-certfile or etcd-keyfile flags.
-          Certificates for etcd are managed by the etcd cluster operator.
+        remediation: |-
+          OpenShift不使用 etcd-certfile 或 etcd-keyfile 标志。etcd 的证书由 etcd 集群操作员管理。
         scored: false
 
       - id: 2.2
-        text: "Ensure that the --client-cert-auth argument is set to true (Manual)"
+        text: "确保将 --client-cert-auth 参数设置为 true（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -54,12 +52,12 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          This setting is managed by the cluster etcd operator. No remediation required."
+        remediation: |-
+          该设置由集群 etcd 操作员管理，无需采取任何纠正措施。
         scored: false
 
       - id: 2.3
-        text: "Ensure that the --auto-tls argument is not set to true (Manual)"
+        text: "确保 --auto-tls 参数未设置为 true（手动）。"
         audit: |
           # Returns 0 if found, 1 if not found
           # Get the node name where the pod is running
@@ -79,12 +77,12 @@ groups:
               compare:
                 op: eq
                 value: "1"
-        remediation: |
-          This setting is managed by the cluster etcd operator. No remediation required.
+        remediation: |-
+          该设置由集群 etcd 运算符管理。无需进行修复。
         scored: false
 
       - id: 2.4
-        text: "Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate (Manual)"
+        text: "确保将 --peer-cert-file 和 --peer-key-file 参数设置为适当的值（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -104,12 +102,12 @@ groups:
               compare:
                 op: regex
                 value: '\/etc\/kubernetes\/static-pod-certs\/secrets\/etcd-all-peer\/etcd-peer-.*\.(?:crt|key)'
-        remediation: |
-          None. This configuration is managed by the etcd operator.
+        remediation: |-
+          这个配置由 etcd 操作员管理，无需进行修改。
         scored: false
 
       - id: 2.5
-        text: "Ensure that the --peer-client-cert-auth argument is set to true (Manual)"
+        text: "确保将 --peer-client-cert-auth 参数设置为 true（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -128,12 +126,12 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          This setting is managed by the cluster etcd operator. No remediation required.
+        remediation: |-
+          该设置由集群 etcd 操作员管理。无需进行修复。
         scored: false
 
       - id: 2.6
-        text: "Ensure that the --peer-auto-tls argument is not set to true (Manual)"
+        text: "确保 --peer-auto-tls 参数未设置为 true（手动）。"
         audit: |
           # Returns 0 if found, 1 if not found
           # Get the node name where the pod is running
@@ -153,12 +151,12 @@ groups:
               compare:
                 op: eq
                 value: "1"
-        remediation: |
-          This setting is managed by the cluster etcd operator. No remediation required.
+        remediation: |-
+          这个设置由集群的 etcd 操作程序管理，无需进行修复。
         scored: false
 
       - id: 2.7
-        text: "Ensure that a unique Certificate Authority is used for etcd (Manual)"
+        text: "确保为 etcd 使用唯一的证书颁发机构（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -178,6 +176,6 @@ groups:
               compare:
                 op: regex
                 value: '\/etc\/kubernetes\/static-pod-certs\/configmaps\/etcd-(?:serving|peer-client)-ca\/ca-bundle\.(?:crt|key)'
-        remediation: |
-          None required. Certificates for etcd are managed by the OpenShift cluster etcd operator.
+        remediation: |-
+          不需要。etcd 的证书由 OpenShift 集群的 etcd 操作员管理。
         scored: false

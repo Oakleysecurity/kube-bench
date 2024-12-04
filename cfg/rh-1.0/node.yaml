@@ -1,15 +1,14 @@
----
 controls:
 version: rh-1.0
 id: 4
-text: "Worker Node Security Configuration"
+text: "工作节点安全配置"
 type: "node"
 groups:
   - id: 4.1
-    text: "Worker Node Configuration Files"
+    text: "工作节点配置文件"
     checks:
       - id: 4.1.1
-        text: "Ensure that the kubelet service file permissions are set to 644 or more restrictive (Automated)"
+        text: "确保 kubelet 服务文件的权限设置为 644 或更严格（自动）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host stat -c "$NODE_NAME %n permissions=%a" /etc/systemd/system/kubelet.service 2> /dev/null
@@ -19,12 +18,12 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          By default, the kubelet service file has permissions of 644.
+        remediation: |-
+          默认情况下，kubelet 服务文件的权限为 644。
         scored: true
 
       - id: 4.1.2
-        text: "Ensure that the kubelet service file ownership is set to root:root (Automated)"
+        text: "确保 kubelet 服务文件的所有权设置为 root:root（自动化）。"
         audit: |
           # Should return root:root for each node
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
@@ -32,12 +31,12 @@ groups:
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          By default, the kubelet service file has ownership of root:root.
+        remediation: |-
+          默认情况下，kubelet 服务文件的所有权是 root:root。
         scored: true
 
       - id: 4.1.3
-        text: "If proxy kubeconfig file exists ensure permissions are set to 644 or more restrictive (Manual)"
+        text: "如果存在代理 kubeconfig 文件，请确保权限设置为 644 或更严格（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -58,12 +57,12 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          None needed.
+        remediation: |-
+          不需要。
         scored: false
 
       - id: 4.1.4
-        text: "Ensure that the proxy kubeconfig file ownership is set to root:root (Manual)"
+        text: "确保代理 kubeconfig 文件的所有权设置为 root:root（手动）。"
         audit: |
           # Get the node name where the pod is running
           NODE_NAME=$(oc get pod "$HOSTNAME" -o=jsonpath='{.spec.nodeName}')
@@ -81,12 +80,12 @@ groups:
           bin_op: or
           test_items:
             - flag: root:root
-        remediation: |
-          None required. The configuration is managed by OpenShift operators.
+        remediation: |-
+          不需要任何操作。该配置由 OpenShift 运算符进行管理。
         scored: false
 
       - id: 4.1.5
-        text: "Ensure that the --kubeconfig kubelet.conf file permissions are set to 644 or more restrictive (Manual)"
+        text: "确保 --kubeconfig kubelet.conf 文件权限设置为 644 或更严格（手动）。"
         audit: |
           # Check permissions
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
@@ -98,12 +97,12 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          None required.
+        remediation: |-
+          无需修改。
         scored: false
 
       - id: 4.1.6
-        text: "Ensure that the --kubeconfig kubelet.conf file ownership is set to root:root (Manual)"
+        text: "确保 --kubeconfig kubelet.conf 文件的所有权设置为 root:root（手动）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host stat -c "$NODE_NAME %n %U:%G" /etc/kubernetes/kubelet.conf 2> /dev/null
@@ -111,12 +110,12 @@ groups:
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          None required.
+        remediation: |-
+          不需要。
         scored: false
 
       - id: 4.1.7
-        text: "Ensure that the certificate authorities file permissions are set to 644 or more restrictive (Automated)"
+        text: "确保证书颁发机构文件的权限设置为 644 或更严格（自动化）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host stat -c "$NODE_NAME %n permissions=%a" /etc/kubernetes/kubelet-ca.crt 2> /dev/null
@@ -127,12 +126,12 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          None required.
+        remediation: |-
+          不需要。
         scored: true
 
       - id: 4.1.8
-        text: "Ensure that the client certificate authorities file ownership is set to root:root (Automated)"
+        text: "确保客户端证书掼机构文件的所有权设置为 root:root（自动）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host stat -c "$NODE_NAME %n %U:%G" /etc/kubernetes/kubelet-ca.crt 2> /dev/null
@@ -140,12 +139,12 @@ groups:
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          None required.
+        remediation: |-
+          不需要。
         scored: true
 
       - id: 4.1.9
-        text: "Ensure that the kubelet --config configuration file has permissions set to 644 or more restrictive (Automated)"
+        text: "确保 kubelet --config 的配置文件权限设置为 644 或更严格（自动化）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host stat -c "$NODE_NAME %n permissions=%a" /var/lib/kubelet/kubeconfig 2> /dev/null
@@ -156,12 +155,12 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          None required.
+        remediation: |-
+          无需操作。
         scored: true
 
       - id: 4.1.10
-        text: "Ensure that the kubelet configuration file ownership is set to root:root (Automated)"
+        text: "确保 kubelet 配置文件的所有权设置为 root:root（自动化）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host stat -c "$NODE_NAME %n %U:%G" /var/lib/kubelet/kubeconfig 2> /dev/null
@@ -169,15 +168,15 @@ groups:
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          None required.
+        remediation: |-
+          无需。
         scored: true
 
   - id: 4.2
     text: "Kubelet"
     checks:
       - id: 4.2.1
-        text: "Ensure that the --anonymous-auth argument is set to false (Automated)"
+        text: "确保将 --anonymous-auth 参数设置为 false（自动化）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host grep -B4 -A1 anonymous /etc/kubernetes/kubelet.conf 2> /dev/null
@@ -186,13 +185,12 @@ groups:
           test_items:
             - flag: "enabled: true"
               set: false
-        remediation: |
-          Follow the instructions in the documentation to create a Kubelet config CRD
-          and set the anonymous-auth is set to false.
+        remediation: |-
+          按照文档中的说明创建一个 Kubelet 配置 CRD，并将 anonymous-auth 设置为 false。
         scored: true
 
       - id: 4.2.2
-        text: "Ensure that the --authorization-mode argument is not set to AlwaysAllow (Manual)"
+        text: "确保 --authorization-mode 参数未设置为 AlwaysAllow（手动）。"
         type: manual
         # Takes a lot of time for connection to fail and
         audit: |
@@ -204,12 +202,12 @@ groups:
         tests:
           test_items:
             - flag: "Connection timed out"
-        remediation: |
-          None required. Unauthenticated/Unauthorized users have no access to OpenShift nodes.
+        remediation: |-
+          不需要。未经身份验证/未经授权的用户无法访问 OpenShift 节点。
         scored: false
 
       - id: 4.2.3
-        text: "Ensure that the --client-ca-file argument is set as appropriate (Automated)"
+        text: "确保将 --client-ca-file 参数设置为适当的值（自动化）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host grep clientCAFile /etc/kubernetes/kubelet.conf 2> /dev/null
@@ -217,12 +215,12 @@ groups:
         tests:
           test_items:
             - flag: '"clientCAFile": "/etc/kubernetes/kubelet-ca.crt"'
-        remediation: |
-          None required. Changing the clientCAFile value is unsupported.
+        remediation: |-
+          无需更改。不支持更改 clientCAFile 值。
         scored: true
 
       - id: 4.2.4
-        text: "Verify that the read only port is not used or is set to 0 (Automated)"
+        text: "验证只读端口未被使用或已设置为 0（自动化）。"
         audit: |
           echo `oc -n openshift-kube-apiserver get cm kube-apiserver-pod -o yaml | grep --color read-only-port` 2> /dev/null
           echo `oc -n openshift-kube-apiserver get cm config -o yaml | grep --color "read-only-port"` 2> /dev/null
@@ -235,14 +233,12 @@ groups:
                 value: "[\"0\"]"
             - flag: "read-only-port"
               set: false
-        remediation: |
-          In earlier versions of OpenShift 4, the read-only-port argument is not used.
-          Follow the instructions in the documentation to create a Kubelet config CRD
-          and set the --read-only-port is set to 0.
+        remediation: |-
+          在较早版本的 OpenShift 4 中，不使用 read-only-port 参数。请按照文档中的说明创建一个 Kubelet 配置 CRD，并将 --read-only-port 设置为 0。
         scored: true
 
       - id: 4.2.5
-        text: "Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Automated)"
+        text: "确保 --streaming-connection-idle-timeout 参数不设置为 0 (自动)。"
         audit: |
           # Should return 1 for node
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
@@ -267,13 +263,12 @@ groups:
               compare:
                 op: eq
                 value: 1
-        remediation: |
-          Follow the instructions in the documentation to create a Kubelet config CRD and set
-          the --streaming-connection-idle-timeout to the desired value. Do not set the value to 0.
+        remediation: |-
+          按照文档中的说明创建一个 Kubelet 配置 CRD，并将 --streaming-connection-idle-timeout 设置为所需数值。不要将数值设置为 0。
         scored: true
 
       - id: 4.2.6
-        text: "Ensure that the --protect-kernel-defaults argument is not set (Manual)"
+        text: "确保未设置 --protect-kernel-defaults 参数（手动）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/$NODE_NAME -- chroot /host more /etc/kubernetes/kubelet.conf 2> /dev/null
@@ -281,14 +276,12 @@ groups:
           test_items:
             - flag: protectKernelDefaults
               set: false
-        remediation: |
-          None required. The OpenShift 4 kubelet modifies the system tunable;
-          using the protect-kernel-defaults flag will cause the kubelet to fail on start if the tunables
-          don't match the kubelet configuration and the OpenShift node will fail to start.
+        remediation: |-
+          不需要。OpenShift 4 kubelet 会修改系统可调整参数；使用 protect-kernel-defaults 标志将导致 kubelet 在启动时失败，如果可调整参数与 kubelet 配置不匹配，则 OpenShift 节点将无法启动。
         scored: false
 
       - id: 4.2.7
-        text: "Ensure that the --make-iptables-util-chains argument is set to true (Manual)"
+        text: "确保将 --make-iptables-util-chains 参数设置为 true（手动）。"
         audit: |
           /bin/bash
           flag=make-iptables-util-chains
@@ -311,12 +304,12 @@ groups:
         tests:
           test_items:
             - flag: "set to true"
-        remediation: |
-          None required. The --make-iptables-util-chains argument is set to true by default.
+        remediation: |-
+          不需要任何操作。--make-iptables-util-chains 参数默认设置为 true。
         scored: false
 
       - id: 4.2.8
-        text: "Ensure that the --hostname-override argument is not set (Manual)"
+        text: "确保未设置 --hostname-override 参数（手动设置）。"
         audit: |
           echo `oc get machineconfig 01-worker-kubelet -o yaml | grep hostname-override`
           echo `oc get machineconfig 01-master-kubelet -o yaml | grep hostname-override`
@@ -324,26 +317,24 @@ groups:
           test_items:
             - flag: hostname-override
               set: false
-        remediation: |
-          By default, --hostname-override argument is not set.
+        remediation: |-
+          默认情况下，--hostname-override 参数未设置。
         scored: false
 
       - id: 4.2.9
-        text: "Ensure that the kubeAPIQPS [--event-qps] argument is set to 0 or a level which ensures appropriate event capture (Manual)"
+        text: "确保 kubeAPIQPS [--event-qps] 参数设置为 0 或确保适当的事件捕获级别（手动）。"
         audit: |
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
           oc debug node/${NODE_NAME} -- chroot /host cat /etc/kubernetes/kubelet.conf;
           oc get machineconfig 01-worker-kubelet -o yaml | grep --color kubeAPIQPS%3A%2050
           oc get machineconfig 01-master-kubelet -o yaml | grep --color kubeAPIQPS%3A%2050
         type: "manual"
-        remediation: |
-          Follow the documentation to edit kubelet parameters
-          https://docs.openshift.com/container-platform/4.5/scalability_and_performance/recommended-host-practices.html#create-a-kubeletconfig-crd-to-edit-kubelet-parameters
-          KubeAPIQPS: <QPS>
+        remediation: |-
+          请按照文档编辑 kubelet 参数https://docs.openshift.com/container-platform/4.5/scalability_and_performance/recommended-host-practices.html#create-a-kubeletconfig-crd-to-edit-kubelet-parametersKubeAPIQPS: <QPS>
         scored: false
 
       - id: 4.2.10
-        text: "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate (Automated)"
+        text: "确保将 --tls-cert-file 和 --tls-private-key-file 参数设置为适当的值（自动化）。"
         audit: |
           oc get configmap config -n openshift-kube-apiserver -o json \
             | jq -r '.data["config.yaml"]' \
@@ -356,13 +347,12 @@ groups:
           test_items:
             - flag: "/etc/kubernetes/static-pod-certs/secrets/kubelet-client/tls.crt"
             - flag: "/etc/kubernetes/static-pod-certs/secrets/kubelet-client/tls.key"
-        remediation: |
-          OpenShift automatically manages TLS authentication for the API server communication with the node/kublet.
-          This is not configurable.
+        remediation: |-
+          OpenShift 会自动管理 API 服务器与节点/Kubelet 之间的 TLS 认证。这是不可配置的。
         scored: true
 
       - id: 4.2.11
-        text: "Ensure that the --rotate-certificates argument is not set to false (Manual)"
+        text: "确保--rotate-certificates参数未设置为false（手动操作）。"
         audit: |
           #Verify the rotateKubeletClientCertificate feature gate is not set to false
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
@@ -383,12 +373,12 @@ groups:
                 value: false
             - flag: rotateKubeletClientCertificates
               set: false
-        remediation: |
-          None required.
+        remediation: |-
+          无需任何操作。
         scored: false
 
       - id: 4.2.12
-        text: "Verify that the RotateKubeletServerCertificate argument is set to true (Manual)"
+        text: "验证 RotateKubeletServerCertificate 参数是否设置为 true (手动)。"
         audit: |
           #Verify the rotateKubeletServerCertificate feature gate is on
           NODE_NAME=$(oc get pod $HOSTNAME -o=jsonpath='{.spec.nodeName}')
@@ -407,12 +397,12 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          By default, kubelet server certificate rotation is disabled.
+        remediation: |-
+          默认情况下，kubelet 服务器证书轮换是禁用的。
         scored: false
 
       - id: 4.2.13
-        text: "Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers (Manual)"
+        text: "确保 Kubelet 仅使用强加密密码（手动）。"
         audit: |
           # needs verification
           # verify cipher suites
@@ -423,7 +413,6 @@ groups:
           #check value for tlsSecurityProfile; null is returned if default is used
           oc get kubeapiservers.operator.openshift.io cluster -o json |jq .spec.tlsSecurityProfile
         type: manual
-        remediation: |
-          Follow the directions above and in the OpenShift documentation to configure the tlsSecurityProfile.
-          Configuring Ingress
+        remediation: |-
+          按照上述说明和 OpenShift 文档中的步骤来配置 tlsSecurityProfile。配置 Ingress。
         scored: false

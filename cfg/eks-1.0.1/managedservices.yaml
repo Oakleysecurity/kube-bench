@@ -1,104 +1,103 @@
----
 controls:
 version: "eks-1.0.1"
 id: 5
-text: "Managed Services"
+text: "托管服务"
 type: "managedservices"
 groups:
   - id: 5.1
-    text: "Image Registry and Image Scanning"
+    text: "镜像仓库和镜像扫描"
     checks:
       - id: 5.1.1
-        text: "Ensure Image Vulnerability Scanning using Amazon ECR image scanning or a third-party provider (Manual)"
+        text: "确保使用 Amazon ECR 镜像扫描或第三方提供商进行镜像漏洞扫描（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复。"
         scored: false
 
       - id: 5.1.2
-        text: "Minimize user access to Amazon ECR (Manual)"
+        text: "最小化用户对 Amazon ECR 的访问（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复"
         scored: false
 
       - id: 5.1.3
-        text: "Minimize cluster access to read-only for Amazon ECR (Manual)"
+        text: "将 Amazon ECR 的集群访问权限最小化，设置为只读权限（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施。"
         scored: false
 
       - id: 5.1.4
-        text: "Minimize Container Registries to only those approved (Manual)"
+        text: "将容器注册表最小化到仅包括经批准的注册表（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施"
         scored: false
 
   - id: 5.2
-    text: "Identity and Access Management (IAM)"
+    text: "身份和访问管理（IAM）"
     checks:
       - id: 5.2.1
-        text: "Prefer using dedicated Amazon EKS Service Accounts (Manual)"
+        text: "建议使用专用的 Amazon EKS 服务账号（手动方式）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复"
         scored: false
 
   - id: 5.3
-    text: "AWS Key Management Service (KMS)"
+    text: "AWS密钥管理服务（KMS）"
     checks:
       - id: 5.3.1
-        text: "Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs) managed in AWS KMS (Manual)"
+        text: "确保使用在 AWS KMS 中管理的客户主密钥（CMKs）对 Kubernetes Secrets 进行加密（手动操作）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
   - id: 5.4
-    text: "Cluster Networking"
+    text: "集群网络"
     checks:
       - id: 5.4.1
-        text: "Restrict Access to the Control Plane Endpoint (Manual)"
+        text: "限制对控制平面端点的访问（手动配置）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复。"
         scored: false
 
       - id: 5.4.2
-        text: "Ensure clusters are created with Private Endpoint Enabled and Public Access Disabled (Manual)"
+        text: "确保集群创建时启用了私有终结点，并禁用了公共访问（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施。"
         scored: false
 
       - id: 5.4.3
-        text: "Ensure clusters are created with Private Nodes (Manual)"
+        text: "确保使用私有节点（手动）创建集群。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施。"
         scored: false
 
       - id: 5.4.4
-        text: "Ensure Network Policy is Enabled and set as appropriate (Manual)"
+        text: "确保网络策略已启用并设置为适当的值（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
       - id: 5.4.5
-        text: "Encrypt traffic to HTTPS load balancers with TLS certificates (Manual)"
+        text: "使用 TLS 证书对传输到 HTTPS 负载均衡器的流量进行加密（手动方式）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复"
         scored: false
 
 
   - id: 5.5
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 5.5.1
-        text: "Manage Kubernetes RBAC users with AWS IAM Authenticator for Kubernetes (Manual)"
+        text: "使用 AWS IAM Authenticator for Kubernetes（手动方式）管理 Kubernetes RBAC 用户。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复"
         scored: false
 
 
   - id: 5.6
-    text: "Other Cluster Configurations"
+    text: "其他集群配置"
     checks:
       - id: 5.6.1
-        text: "Consider Fargate for running untrusted workloads (Manual)"
+        text: "考虑使用 Fargate 来运行不受信任的工作负载（手动操作）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施。"
         scored: false

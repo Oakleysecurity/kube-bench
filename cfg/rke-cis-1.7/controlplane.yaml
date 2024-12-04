@@ -1,60 +1,48 @@
----
 controls:
 version: "rke-cis-1.7"
 id: 3
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 3.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 3.1.1
-        text: "Client certificate authentication should not be used for users (Manual)"
+        text: "客户端证书认证不应该用于用户（手动）。"
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
-          implemented in place of client certificates.
+        remediation: |-
+          应该实施 Kubernetes 提供的替代机制，比如使用 OIDC，而不是使用客户端证书。
         scored: false
       - id: 3.1.2
-        text: "Service account token authentication should not be used for users (Manual)"
+        text: "对于用户，不应该使用服务账户令牌认证（手动）。"
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be implemented
-          in place of service account tokens.
+        remediation: |-
+          应该实施 Kubernetes 提供的替代机制，如使用 OIDC，来取代服务账户令牌。
         scored: false
       - id: 3.1.3
-        text: "Bootstrap token authentication should not be used for users (Manual)"
+        text: "不应该为用户使用引导令牌认证（手动）。"
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be implemented
-          in place of bootstrap tokens.
+        remediation: |-
+          应该实施 Kubernetes 提供的 OIDC 等替代机制来代替引导令牌。
         scored: false
 
   - id: 3.2
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 3.2.1
-        text: "Ensure that a minimal audit policy is created (Automated)"
+        text: "确保创建一个最小的审计策略（自动化）。"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
         tests:
           test_items:
             - flag: "--audit-policy-file"
               set: true
-        remediation: |
-          Create an audit policy file for your cluster.
+        remediation: |-
+          为您的集群创建一个审计策略文件。
         scored: true
 
       - id: 3.2.2
-        text: "Ensure that the audit policy covers key security concerns (Manual)"
+        text: "确保审计策略涵盖关键的安全问题（手动）。"
         type: "manual"
-        remediation: |
-          Review the audit policy provided for the cluster and ensure that it covers
-          at least the following areas,
-          - Access to Secrets managed by the cluster. Care should be taken to only
-            log Metadata for requests to Secrets, ConfigMaps, and TokenReviews, in
-            order to avoid risk of logging sensitive data.
-          - Modification of Pod and Deployment objects.
-          - Use of `pods/exec`, `pods/portforward`, `pods/proxy` and `services/proxy`.
-          For most requests, minimally logging at the Metadata level is recommended
-          (the most basic level of logging).
+        remediation: |-
+          审查为集群提供的审计策略，并确保至少涵盖以下领域：- 访问集群管理的 Secrets。需要小心谨慎，只记录对 Secrets、ConfigMaps 和 TokenReviews 的请求的元数据，以避免记录敏感数据的风险。- 修改 Pod 和 Deployment 对象。- 使用 `pods/exec`、`pods/portforward`、`pods/proxy` 和 `services/proxy`。对于大多数请求，建议最低限度记录在元数据级别（最基本的日志记录级别）。
         scored: false

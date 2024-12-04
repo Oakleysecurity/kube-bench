@@ -1,25 +1,24 @@
----
 controls:
 version: "rh-0.7"
 id: 2
-text: "Worker Node Security Configuration"
+text: "工作节点安全配置"
 type: "node"
 groups:
   - id: 7
     text: "Kubelet"
     checks:
       - id: 7.1
-        text: "Use Security Context Constraints to manage privileged containers as needed"
+        text: "使用安全上下文约束来根据需要管理特权容器。"
         type: "skip"
         scored: true
 
       - id: 7.2
-        text: "Ensure anonymous-auth is not disabled"
+        text: "确保匿名认证未被禁用。"
         type: "skip"
         scored: true
 
       - id: 7.3
-        text: "Verify that the --authorization-mode argument is set to WebHook"
+        text: "验证 --authorization-mode 参数已设置为 WebHook。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -30,29 +29,23 @@ groups:
               compare:
                 op: has
                 value: "Webhook"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and remove authorization-mode under
-          kubeletArguments in /etc/origin/node/node-config.yaml or set it to "Webhook".
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，在 /etc/origin/node/node-config.yaml 中的 kubeletArguments 下移除 authorization-mode，或将其设置为 "Webhook"。
         scored: true
 
       - id: 7.4
-        text: "Verify the OpenShift default for the client-ca-file argument"
+        text: "验证 OpenShift 对 client-ca-file 参数的默认设置。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           test_items:
             - path: "{.PodManifestConfig.client-ca-file}"
               set: false
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and remove any configuration returned by the following:
-          grep -A1 client-ca-file /etc/origin/node/node-config.yaml
-
-          Reset to the OpenShift default.
-          See https://github.com/openshift/openshift-ansible/blob/release-3.10/roles/openshift_node_group/templates/node-config.yaml.j2#L65
-          The config file does not have this defined in kubeletArgument, but in PodManifestConfig.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并删除以下命令返回的任何配置：grep -A1 client-ca-file /etc/origin/node/node-config.yaml重置为 OpenShift 默认配置。请参考 https://github.com/openshift/openshift-ansible/blob/release-3.10/roles/openshift_node_group/templates/node-config.yaml.j2#L65配置文件中没有在 kubeletArgument 中定义，而在 PodManifestConfig 中定义。
         scored: true
 
       - id: 7.5
-        text: "Verify the OpenShift default setting for the read-only-port argument"
+        text: "验证 OpenShift 对于 read-only-port 参数的默认设置。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -63,12 +56,12 @@ groups:
               compare:
                 op: eq
                 value: "0"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and removed so that the OpenShift default is applied.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并删除以应用 OpenShift 默认设置。
         scored: true
 
       - id: 7.6
-        text: "Adjust the streaming-connection-idle-timeout argument"
+        text: "调整 streaming-connection-idle-timeout 参数。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -79,22 +72,17 @@ groups:
               compare:
                 op: eq
                 value: "5m"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and set the streaming-connection-timeout
-          value like the following in node-config.yaml.
-
-          kubeletArguments:
-            streaming-connection-idle-timeout:
-               - "5m"
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并在 node-config.yaml 中设置 streaming-connection-timeout 的值如下所示：kubeletArguments:  streaming-connection-idle-timeout:    - "5m"
         scored: true
 
       - id: 7.7
-        text: "Verify the OpenShift defaults for the protect-kernel-defaults argument"
+        text: "验证 OpenShift 中 protect-kernel-defaults 参数的默认值。"
         type: "skip"
         scored: true
 
       - id: 7.8
-        text: "Verify the OpenShift default value of true for the make-iptables-util-chains argument"
+        text: "验证 OpenShift 对于 make-iptables-util-chains 参数的默认值为 true。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -105,13 +93,12 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and reset make-iptables-util-chains to the OpenShift
-          default value of true.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并将 make-iptables-util-chains 重置为 OpenShift 的默认值 true。
         scored: true
 
       - id: 7.9
-        text: "Verify that the --keep-terminated-pod-volumes argument is set to false"
+        text: "验证 --keep-terminated-pod-volumes 参数是否设置为 false。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -122,17 +109,17 @@ groups:
               compare:
                 op: eq
                 value: "false"
-        remediation: |
-          Reset to the OpenShift defaults
+        remediation: |-
+          恢复为 OpenShift 的默认设置。
         scored: true
 
       - id: 7.10
-        text: "Verify the OpenShift defaults for the hostname-override argument"
+        text: "验证 OpenShift 中 hostname-override 参数的默认设置。"
         type: "skip"
         scored: true
 
       - id: 7.11
-        text: "Set the --event-qps argument to 0"
+        text: "将 --event-qps 参数设置为 0。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -143,13 +130,12 @@ groups:
               compare:
                 op: eq
                 value: "0"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml set the event-qps argument to 0 in
-          the kubeletArguments section of.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，在 kubeletArguments 部分中将 event-qps 参数设置为 0。
         scored: true
 
       - id: 7.12
-        text: "Verify the OpenShift cert-dir flag for HTTPS traffic"
+        text: "验证 OpenShift 的 cert-dir 标志以用于 HTTPS 通信流量。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           test_items:
@@ -157,12 +143,12 @@ groups:
               compare:
                 op: has
                 value: "/etc/origin/node/certificates"
-        remediation: |
-          Reset to the OpenShift default values.
+        remediation: |-
+          恢复至 OpenShift 的默认数值。
         scored: true
 
       - id: 7.13
-        text: "Verify the OpenShift default of 0 for the cadvisor-port argument"
+        text: "验证 OpenShift 对于 cadvisor-port 参数的默认值是否为 0。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           bin_op: or
@@ -173,13 +159,12 @@ groups:
               compare:
                 op: eq
                 value: "0"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and remove the cadvisor-port flag
-          if it is set in the  kubeletArguments section.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并在 kubeletArguments 部分中移除 cadvisor-port 标志，如果已经设置。
         scored: true
 
       - id: 7.14
-        text: "Verify that the RotateKubeletClientCertificate argument is set to true"
+        text: "验证 RotateKubeletClientCertificate 参数是否设置为 true。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           test_items:
@@ -187,12 +172,12 @@ groups:
               compare:
                 op: has
                 value: "RotateKubeletClientCertificate=true"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and set RotateKubeletClientCertificate to true.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并将 RotateKubeletClientCertificate 设置为 true。
         scored: true
 
       - id: 7.15
-        text: "Verify that the RotateKubeletServerCertificate argument is set to true"
+        text: "验证 RotateKubeletServerCertificate 参数是否设置为 true。"
         audit_config: "cat /etc/origin/node/node-config.yaml"
         tests:
           test_items:
@@ -200,16 +185,16 @@ groups:
               compare:
                 op: has
                 value: "RotateKubeletServerCertificate=true"
-        remediation: |
-          Edit the Openshift node config file /etc/origin/node/node-config.yaml and set RotateKubeletServerCertificate to true.
+        remediation: |-
+          编辑 Openshift 节点配置文件 /etc/origin/node/node-config.yaml，并将 RotateKubeletServerCertificate 设置为 true。
         scored: true
 
 
   - id: 8
-    text: "Configuration Files"
+    text: "配置文件"
     checks:
       - id: 8.1
-        text: "Verify the OpenShift default permissions for the kubelet.conf file"
+        text: "验证 kubelet.conf 文件的 OpenShift 默认权限。"
         audit: "stat -c permissions=%a  /etc/origin/node/node.kubeconfig"
         tests:
           test_items:
@@ -217,24 +202,22 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command on each worker node.
-          chmod 644 /etc/origin/node/node.kubeconfig
+        remediation: |-
+          在每个工作节点上运行以下命令。chmod 644 /etc/origin/node/node.kubeconfig
         scored: true
 
       - id: 8.2
-        text: "Verify the kubeconfig file ownership of root:root"
+        text: "验证 kubeconfig 文件的所有者是 root:root。"
         audit: "stat -c %U:%G /etc/origin/node/node.kubeconfig"
         tests:
           test_items:
             - flag: "root:root"
-          remediation: |
-            Run the below command on each worker node.
-            chown root:root /etc/origin/node/node.kubeconfig
+          remediation: |-
+            在每个工作节点上运行以下命令。chown root:root /etc/origin/node/node.kubeconfig
           scored: true
 
       - id: 8.3
-        text: "Verify the kubelet service file permissions of 644"
+        text: "验证 kubelet 服务文件权限为 644。"
         audit: "stat -c permissions=%a $kubeletsvc"
         tests:
           test_items:
@@ -242,24 +225,22 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command on each worker node.
-          chmod 644 $kubeletsvc
+        remediation: |-
+          在每个工作节点上运行以下命令。chmod 644 $kubeletsvc
         scored: true
 
       - id: 8.4
-        text: "Verify the kubelet service file ownership of root:root"
+        text: "验证 kubelet 服务文件的所有权为 root:root。"
         audit: "stat -c %U:%G $kubeletsvc"
         tests:
           test_items:
             - flag: "root:root"
-          remediation: |
-            Run the below command on each worker node.
-            chown root:root $kubeletsvc
+          remediation: |-
+            在每个工作节点上运行以下命令。chown root:root $kubeletsvc
           scored: true
 
       - id: 8.5
-        text: "Verify the OpenShift default permissions for the proxy kubeconfig file"
+        text: "验证 OpenShift 默认代理 kubeconfig 文件的权限。"
         audit: "stat -c permissions=%a /etc/origin/node/node.kubeconfig"
         tests:
           test_items:
@@ -267,24 +248,22 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command on each worker node.
-          chmod 644 /etc/origin/node/node.kubeconfig
+        remediation: |-
+          在每个 Worker 节点上运行以下命令。chmod 644 /etc/origin/node/node.kubeconfig
         scored: true
 
       - id: 8.6
-        text: "Verify the proxy kubeconfig file ownership of root:root"
+        text: "验证代理 kubeconfig 文件的所有权为 root:root。"
         audit: "stat -c %U:%G /etc/origin/node/node.kubeconfig"
         tests:
           test_items:
             - flag: "root:root"
-          remediation: |
-            Run the below command on each worker node.
-            chown root:root /etc/origin/node/node.kubeconfig
+          remediation: |-
+            在每个工作节点上运行以下命令。chown root:root /etc/origin/node/node.kubeconfig
           scored: true
 
       - id: 8.7
-        text: "Verify the OpenShift default permissions for the certificate authorities file."
+        text: "验证 OpenShift 对证书颁发机构文件的默认权限。"
         audit: "stat -c permissions=%a /etc/origin/node/client-ca.crt"
         tests:
           test_items:
@@ -292,18 +271,16 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command on each worker node.
-          chmod 644 /etc/origin/node/client-ca.crt
+        remediation: |-
+          在每个工作节点上运行以下命令。chmod 644 /etc/origin/node/client-ca.crt
         scored: true
 
       - id: 8.8
-        text: "Verify the client certificate authorities file ownership of root:root"
+        text: "验证客户端证书颁发机构文件的所有者是否为 root:root。"
         audit: "stat -c %U:%G /etc/origin/node/client-ca.crt"
         tests:
           test_items:
             - flag: "root:root"
-          remediation: |
-            Run the below command on each worker node.
-            chown root:root /etc/origin/node/client-ca.crt
+          remediation: |-
+            在每个工作节点上运行以下命令。chown root:root /etc/origin/node/client-ca.crt
           scored: true

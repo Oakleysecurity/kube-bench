@@ -1,15 +1,14 @@
----
 controls:
 version: "cis-1.9"
 id: 5
-text: "Kubernetes Policies"
+text: "Kubernetes策略"
 type: "policies"
 groups:
   - id: 5.1
-    text: "RBAC and Service Accounts"
+    text: "RBAC 和服务账号"
     checks:
       - id: 5.1.1
-        text: "Ensure that the cluster-admin role is only used where required (Automated)"
+        text: "确保只在必要时使用 cluster-admin 角色（自动化）。"
         audit: |
           kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].name --no-headers | while read -r role_name role_binding subject
           do
@@ -27,29 +26,26 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          Identify all clusterrolebindings to the cluster-admin role. Check if they are used and
-          if they need this role or if they could use a role with fewer privileges.
-          Where possible, first bind users to a lower privileged role and then remove the
-          clusterrolebinding to the cluster-admin role : kubectl delete clusterrolebinding [name]
-          Condition: is_compliant is false if rolename is not cluster-admin and rolebinding is cluster-admin.
+        remediation: |-
+          识别所有绑定到 cluster-admin 角色的 clusterrolebindings。检查它们是否被使用，以及它们是否需要这个角色，或者是否可以使用权限更低的角色。在可能的情况下，首先将用户绑定到一个权限更低的角色，然后删除绑定到 cluster-admin 角色的 clusterrolebinding：kubectl delete clusterrolebinding [name]。条件：如果 rolename 不是 cluster-admin 且 rolebinding 是 cluster-admin，则 is_compliant 条件为 false。
         scored: true
 
       - id: 5.1.2
-        text: "Minimize access to secrets (Automated)"
-        audit: "echo \"canGetListWatchSecretsAsSystemAuthenticated: $(kubectl auth can-i get,list,watch secrets --all-namespaces --as=system:authenticated)\""
+        text: "最小化对机密信息的访问（自动化）。"
+        audit: "echo \"canGetListWatchSecretsAsSystemAuthenticated: $(kubectl auth
+          can-i get,list,watch secrets --all-namespaces --as=system:authenticated)\""
         tests:
           test_items:
             - flag: "canGetListWatchSecretsAsSystemAuthenticated"
               compare:
                 op: eq
                 value: no
-        remediation: |
-          Where possible, remove get, list and watch access to Secret objects in the cluster.
+        remediation: |-
+          在可能的情况下，删除集群中对 Secret 对象的 get、list 和 watch 访问权限。
         scored: true
 
       - id: 5.1.3
-        text: "Minimize wildcard use in Roles and ClusterRoles (Automated)"
+        text: "最小化在角色（Roles）和集群角色（ClusterRoles）中对通配符的使用（自动化）。"
         audit: |
           # Check Roles
           kubectl get roles --all-namespaces -o custom-columns=ROLE_NAMESPACE:.metadata.namespace,ROLE_NAME:.metadata.name --no-headers | while read -r role_namespace role_name
@@ -88,15 +84,12 @@ groups:
                 op: eq
                 value: true
               set: true
-        remediation: |
-          Where possible replace any use of wildcards ["*"] in roles and clusterroles with specific
-          objects or actions.
-          Condition: role_is_compliant is false if ["*"] is found in rules.
-          Condition: clusterrole_is_compliant is false if ["*"] is found in rules.
+        remediation: |-
+          在可能的情况下，将角色和集群角色中的通配符 ["*"] 替换为具体的对象或操作。条件：如果规则中发现 ["*"]，则 role_is_compliant 为 false。条件：如果规则中发现 ["*"]，则 clusterrole_is_compliant 为 false。
         scored: true
 
       - id: 5.1.4
-        text: "Minimize access to create pods (Automated)"
+        text: "最小化创建 Pod 的访问权限（自动化）。"
         audit: |
           echo "canCreatePodsAsSystemAuthenticated: $(kubectl auth can-i create pods --all-namespaces --as=system:authenticated)"
         tests:
@@ -105,11 +98,11 @@ groups:
               compare:
                 op: eq
                 value: no
-        remediation: |
-          Where possible, remove create access to pod objects in the cluster.
+        remediation: |-
+          在可能的情况下，删除集群中对 Pod 对象的创建访问权限。
         scored: true
       - id: 5.1.5
-        text: "Ensure that default service accounts are not actively used (Automated)"
+        text: "确保默认服务账户未被激活使用（自动化）。"
         audit: |
           kubectl get serviceaccount --all-namespaces --field-selector metadata.name=default -o=json | jq -r '.items[] | " namespace: \(.metadata.namespace), kind: \(.kind), name: \(.metadata.name), automountServiceAccountToken: \(.automountServiceAccountToken | if . == null then "notset" else . end )"' | xargs -L 1
         use_multiple_values: true
@@ -120,15 +113,12 @@ groups:
                 op: eq
                 value: false
               set: true
-        remediation: |
-          Create explicit service accounts wherever a Kubernetes workload requires specific access
-          to the Kubernetes API server.
-          Modify the configuration of each default service account to include this value
-          `automountServiceAccountToken: false`.
+        remediation: |-
+          在 Kubernetes 工作负载需要特定访问权限到 Kubernetes API 服务器时，创建明确的服务账号。修改每个默认服务账号的配置，包括这个数值 `automountServiceAccountToken: false`。
         scored: true
 
       - id: 5.1.6
-        text: "Ensure that Service Account Tokens are only mounted where necessary (Automated)"
+        text: "确保只在必要的情况下挂载服务账号令牌（自动化）。"
         audit: |
           kubectl get pods --all-namespaces -o custom-columns=POD_NAMESPACE:.metadata.namespace,POD_NAME:.metadata.name,POD_SERVICE_ACCOUNT:.spec.serviceAccount,POD_IS_AUTOMOUNTSERVICEACCOUNTTOKEN:.spec.automountServiceAccountToken --no-headers | while read -r pod_namespace pod_name pod_service_account pod_is_automountserviceaccounttoken
           do
@@ -151,255 +141,224 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          Modify the definition of ServiceAccounts and Pods which do not need to mount service
-          account tokens to disable it, with `automountServiceAccountToken: false`.
-          If both the ServiceAccount and the Pod's .spec specify a value for automountServiceAccountToken, the Pod spec takes precedence.
-          Condition: Pod is_compliant to true when
-            - ServiceAccount is automountServiceAccountToken: false and Pod is automountServiceAccountToken: false or notset
-            - ServiceAccount is automountServiceAccountToken: true notset and Pod is automountServiceAccountToken: false
+        remediation: |-
+          修改 ServiceAccounts 和不需要挂载服务账号令牌的 Pods 的定义，禁用自动挂载服务账号令牌，使用 `automountServiceAccountToken: false`。如果 ServiceAccount 和 Pod 的 .spec 都指定了 automountServiceAccountToken 的值，Pod 的规范将优先考虑。条件：当- ServiceAccount 是 automountServiceAccountToken: false，且 Pod 是 automountServiceAccountToken: false 或未设置时，Pod 为 is_compliant: true- ServiceAccount 是 automountServiceAccountToken: true，未设置，且 Pod 是 automountServiceAccountToken: false 时，Pod 为 is_compliant: true
         scored: true
 
       - id: 5.1.7
-        text: "Avoid use of system:masters group (Manual)"
+        text: "避免使用 system:masters 组（手动）。"
         type: "manual"
-        remediation: |
-          Remove the system:masters group from all users in the cluster.
+        remediation: |-
+          从集群中的所有用户中移除 system:masters 组。
         scored: false
 
       - id: 5.1.8
-        text: "Limit use of the Bind, Impersonate and Escalate permissions in the Kubernetes cluster (Manual)"
+        text: "在 Kubernetes 集群中限制对 Bind、Impersonate 和 Escalate 权限的使用（手动方式）。"
         type: "manual"
-        remediation: |
-          Where possible, remove the impersonate, bind and escalate rights from subjects.
+        remediation: |-
+          在可能的情况下，从subjects中删除模拟、绑定和提升权限。
         scored: false
 
       - id: 5.1.9
-        text: "Minimize access to create persistent volumes (Manual)"
+        text: "限制创建持久卷的访问权限（手动方式）。"
         type: "manual"
-        remediation: |
-          Where possible, remove create access to PersistentVolume objects in the cluster.
+        remediation: |-
+          在可能的情况下，删除集群中对 PersistentVolume 对象的创建访问权限。
         scored: false
 
       - id: 5.1.10
-        text: "Minimize access to the proxy sub-resource of nodes (Manual)"
+        text: "限制对节点的代理子资源的访问（手动操作）。"
         type: "manual"
-        remediation: |
-          Where possible, remove access to the proxy sub-resource of node objects.
+        remediation: |-
+          在可能的情况下，删除对节点对象的代理子资源的访问权限。
         scored: false
 
       - id: 5.1.11
-        text: "Minimize access to the approval sub-resource of certificatesigningrequests objects (Manual)"
+        text: "减少对 certificatesigningrequests 对象的 approval 子资源的访问权限（手动操作）。"
         type: "manual"
-        remediation: |
-          Where possible, remove access to the approval sub-resource of certificatesigningrequest objects.
+        remediation: |-
+          在可能的情况下，移除对 certificatesigningrequest 对象的 approval 子资源的访问权限。
         scored: false
 
       - id: 5.1.12
-        text: "Minimize access to webhook configuration objects (Manual)"
+        text: "最小化对 Webhook 配置对象的访问（手动）"
         type: "manual"
-        remediation: |
-          Where possible, remove access to the validatingwebhookconfigurations or mutatingwebhookconfigurations objects
+        remediation: |-
+          在可能的情况下，移除对 validatingwebhookconfigurations 或 mutatingwebhookconfigurations 对象的访问权限。
         scored: false
 
       - id: 5.1.13
-        text: "Minimize access to the service account token creation (Manual)"
+        text: "最小化对服务账户令牌创建的访问（手动方式）。"
         type: "manual"
-        remediation: |
-          Where possible, remove access to the token sub-resource of serviceaccount objects.
+        remediation: |-
+          在可能的情况下，删除对serviceaccount对象的token子资源的访问权限。
         scored: false
 
   - id: 5.2
-    text: "Pod Security Standards"
+    text: "Pod 安全标准"
     checks:
       - id: 5.2.1
-        text: "Ensure that the cluster has at least one active policy control mechanism in place (Manual)"
+        text: "确保集群中至少有一个激活的策略控制机制 (手动)。"
         type: "manual"
-        remediation: |
-          Ensure that either Pod Security Admission or an external policy control system is in place
-          for every namespace which contains user workloads.
+        remediation: |-
+          确保每个包含用户工作负载的命名空间都有 Pod 安全准入或外部策略控制系统。
         scored: false
 
       - id: 5.2.2
-        text: "Minimize the admission of privileged containers (Manual)"
+        text: "减少特权容器的准入（手动）"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of privileged containers.
+        remediation: |-
+          在集群中每个包含用户工作负载的命名空间中添加策略，以限制特权容器的准入。
         scored: false
 
       - id: 5.2.3
-        text: "Minimize the admission of containers wishing to share the host process ID namespace (Manual)"
+        text: "减少希望共享主机进程ID命名空间的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of `hostPID` containers.
+        remediation: |-
+          在集群中每个具有用户工作负载的命名空间中添加策略，以限制 `hostPID` 容器的准入。
         scored: false
 
       - id: 5.2.4
-        text: "Minimize the admission of containers wishing to share the host IPC namespace (Manual)"
+        text: "减少希望共享主机 IPC 命名空间的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of `hostIPC` containers.
+        remediation: |-
+          在集群中每个包含用户工作负载的命名空间中添加策略，限制 `hostIPC` 容器的准入。
         scored: false
 
       - id: 5.2.5
-        text: "Minimize the admission of containers wishing to share the host network namespace (Manual)"
+        text: "减少希望共享主机网络命名空间的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of `hostNetwork` containers.
+        remediation: |-
+          在集群中每个具有用户工作负载的命名空间中添加策略，以限制 `hostNetwork` 容器的准入。
         scored: false
 
       - id: 5.2.6
-        text: "Minimize the admission of containers with allowPrivilegeEscalation (Manual)"
+        text: "尽量减少允许特权升级的容器进入 (手动)。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of containers with `.spec.allowPrivilegeEscalation` set to `true`.
+        remediation: |-
+          向集群中每个包含用户工作负载的命名空间添加策略，限制允许将 `.spec.allowPrivilegeEscalation` 设置为 `true` 的容器入场。
         scored: false
 
       - id: 5.2.7
-        text: "Minimize the admission of root containers (Manual)"
+        text: "最大限度降低根容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Create a policy for each namespace in the cluster, ensuring that either `MustRunAsNonRoot`
-          or `MustRunAs` with the range of UIDs not including 0, is set.
+        remediation: |-
+          为集群中的每个命名空间创建一个策略，确保要么设置 `MustRunAsNonRoot`，要么设置 `MustRunAs` 且 UID 范围不包括 0。
         scored: false
 
       - id: 5.2.8
-        text: "Minimize the admission of containers with the NET_RAW capability (Manual)"
+        text: "减少具有 NET_RAW 权限的容器的准入（手动方式）"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of containers with the `NET_RAW` capability.
+        remediation: |-
+          在集群中每个包含用户工作负载的命名空间中添加策略，限制具有 `NET_RAW` 能力的容器的准入。
         scored: false
 
       - id: 5.2.9
-        text: "Minimize the admission of containers with added capabilities (Manual)"
+        text: "最小化具有附加能力的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Ensure that `allowedCapabilities` is not present in policies for the cluster unless
-          it is set to an empty array.
+        remediation: |-
+          确保集群策略中不包含 `allowedCapabilities`，除非将其设置为空数组。
         scored: false
 
       - id: 5.2.10
-        text: "Minimize the admission of containers with capabilities assigned (Manual)"
+        text: "最小化拥有分配权限的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Review the use of capabilites in applications running on your cluster. Where a namespace
-          contains applicaions which do not require any Linux capabities to operate consider adding
-          a PSP which forbids the admission of containers which do not drop all capabilities.
+        remediation: |-
+          审查在集群中运行的应用程序中的 capabilites 的使用。如果一个命名空间包含不需要任何 Linux 权限的应用程序，请考虑添加一个 PSP，禁止容器的准入，这些容器没有放弃所有的权限。
         scored: false
 
       - id: 5.2.11
-        text: "Minimize the admission of Windows HostProcess containers (Manual)"
+        text: "减少 Windows HostProcess 容器的准入（手动操作）。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of containers that have `.securityContext.windowsOptions.hostProcess` set to `true`.
+        remediation: |-
+          在集群中每个具有用户工作负载的命名空间中添加策略，以限制具有 `.securityContext.windowsOptions.hostProcess` 设置为 `true` 的容器的准入。
         scored: false
 
       - id: 5.2.12
-        text: "Minimize the admission of HostPath volumes (Manual)"
+        text: "尽量减少 HostPath 卷的准入（手动）。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of containers with `hostPath` volumes.
+        remediation: |-
+          向集群中具有用户工作负载的每个命名空间添加策略，限制具有 `hostPath` 卷的容器的准入。
         scored: false
 
       - id: 5.2.13
-        text: "Minimize the admission of containers which use HostPorts (Manual)"
+        text: "最小化允许使用 HostPorts 的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Add policies to each namespace in the cluster which has user workloads to restrict the
-          admission of containers which use `hostPort` sections.
+        remediation: |-
+          向集群中每个具有用户工作负载的命名空间添加策略，以限制使用 `hostPort` 部分的容器的准入。
         scored: false
 
   - id: 5.3
-    text: "Network Policies and CNI"
+    text: "网络策略和 CNI (容器网络接口)"
     checks:
       - id: 5.3.1
-        text: "Ensure that the CNI in use supports NetworkPolicies (Manual)"
+        text: "确保使用的 CNI 支持 NetworkPolicies（手动）。"
         type: "manual"
-        remediation: |
-          If the CNI plugin in use does not support network policies, consideration should be given to
-          making use of a different plugin, or finding an alternate mechanism for restricting traffic
-          in the Kubernetes cluster.
+        remediation: |-
+          如果正在使用的 CNI 插件不支持网络策略，应考虑使用不同的插件，或者寻找其他限制 Kubernetes 集群流量的替代机制。
         scored: false
 
       - id: 5.3.2
-        text: "Ensure that all Namespaces have NetworkPolicies defined (Manual)"
+        text: "确保所有的命名空间都已定义了网络策略（手动）。"
         type: "manual"
-        remediation: |
-          Follow the documentation and create NetworkPolicy objects as you need them.
+        remediation: |-
+          按照文档的指引创建所需的 NetworkPolicy 对象。
         scored: false
 
   - id: 5.4
-    text: "Secrets Management"
+    text: "安全管理"
     checks:
       - id: 5.4.1
-        text: "Prefer using Secrets as files over Secrets as environment variables (Manual)"
+        text: "建议优先使用 Secrets 作为文件，而不是作为环境变量（手动方式）。"
         type: "manual"
-        remediation: |
-          If possible, rewrite application code to read Secrets from mounted secret files, rather than
-          from environment variables.
+        remediation: |-
+          如果可能的话，重写应用程序代码，从挂载的密钥文件中读取 Secrets，而不是从环境变量中读取。
         scored: false
 
       - id: 5.4.2
-        text: "Consider external secret storage (Manual)"
+        text: "考虑外部密钥存储（手动）。"
         type: "manual"
-        remediation: |
-          Refer to the Secrets management options offered by your cloud provider or a third-party
-          secrets management solution.
+        remediation: |-
+          请参考您的云服务提供商或第三方机密管理解决方案提供的机密管理选项。
         scored: false
 
   - id: 5.5
-    text: "Extensible Admission Control"
+    text: "可扩展的准入控制"
     checks:
       - id: 5.5.1
-        text: "Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)"
+        text: "使用 ImagePolicyWebhook 出入控制器（手动方式）配置镜像溯源。"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and setup image provenance.
+        remediation: |-
+          按照 Kubernetes 文档的指引，设置镜像溯源。
         scored: false
 
   - id: 5.7
-    text: "General Policies"
+    text: "一般策略"
     checks:
       - id: 5.7.1
-        text: "Create administrative boundaries between resources using namespaces (Manual)"
+        text: "使用命名空间（手动方式）在资源之间创建管理员边界。"
         type: "manual"
-        remediation: |
-          Follow the documentation and create namespaces for objects in your deployment as you need
-          them.
+        remediation: |-
+          按照文档的指引，根据部署所需的对象创建命名空间。
         scored: false
 
       - id: 5.7.2
-        text: "Ensure that the seccomp profile is set to docker/default in your Pod definitions (Manual)"
+        text: "确保在您的 Pod 定义中将 seccomp 配置设置为 docker/default（手动）。"
         type: "manual"
-        remediation: |
-          Use `securityContext` to enable the docker/default seccomp profile in your pod definitions.
-          An example is as below:
-            securityContext:
-              seccompProfile:
-                type: RuntimeDefault
+        remediation: |-
+          使用 `securityContext` 在您的 Pod 定义中启用 docker/default seccomp profile。一个示例如下：```yamlsecurityContext:  seccompProfile:    type: RuntimeDefault```
         scored: false
 
       - id: 5.7.3
-        text: "Apply SecurityContext to your Pods and Containers (Manual)"
+        text: "将 SecurityContext 应用于您的 Pods 和 Containers（手动）。"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and apply SecurityContexts to your Pods. For a
-          suggested list of SecurityContexts, you may refer to the CIS Security Benchmark for Docker
-          Containers.
+        remediation: |-
+          请按照 Kubernetes 文档的指导，为您的 Pod 应用 SecurityContexts。您可以参考 CIS Docker 容器安全基准 提供的建议 SecurityContexts 列表。
         scored: false
 
       - id: 5.7.4
-        text: "The default namespace should not be used (Manual)"
+        text: "不应该使用默认命名空间（手动）。"
         type: "manual"
-        remediation: |
-          Ensure that namespaces are created to allow for appropriate segregation of Kubernetes
-          resources and that all new resources are created in a specific namespace.
+        remediation: |-
+          确保创建命名空间以允许对 Kubernetes 资源进行适当的隔离，并且所有新资源都要在特定的命名空间中创建。
         scored: false

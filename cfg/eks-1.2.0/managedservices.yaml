@@ -1,154 +1,109 @@
----
 controls:
 version: "eks-1.2.0"
 id: 5
-text: "Managed Services"
+text: "托管服务"
 type: "managedservices"
 groups:
   - id: 5.1
-    text: "Image Registry and Image Scanning"
+    text: "镜像仓库和镜像扫描"
     checks:
       - id: 5.1.1
-        text: "Ensure Image Vulnerability Scanning using Amazon ECR image scanning or a third-party provider (Manual)"
+        text: "确保使用Amazon ECR镜像扫描或第三方提供商（手动）进行镜像漏洞扫描。"
         type: "manual"
-        remediation: |
-          To utilize AWS ECR for Image scanning please follow the steps below:
-
-          To create a repository configured for scan on push (AWS CLI):
-          aws ecr create-repository --repository-name $REPO_NAME --image-scanning-configuration scanOnPush=true --region $REGION_CODE
-
-          To edit the settings of an existing repository (AWS CLI):
-          aws ecr put-image-scanning-configuration --repository-name $REPO_NAME --image-scanning-configuration scanOnPush=true --region $REGION_CODE
-
-          Use the following steps to start a manual image scan using the AWS Management Console.
-              Open the Amazon ECR console at https://console.aws.amazon.com/ecr/repositories.
-              From the navigation bar, choose the Region to create your repository in.
-              In the navigation pane, choose Repositories.
-              On the Repositories page, choose the repository that contains the image to scan.
-              On the Images page, select the image to scan and then choose Scan.
+        remediation: |-
+          要利用 AWS ECR 进行镜像扫描，请按照以下步骤操作：创建一个配置为“推送时扫描”的仓库（AWS CLI）：aws ecr create-repository --repository-name $REPO_NAME --image-scanning-configuration scanOnPush=true --region $REGION_CODE编辑现有仓库的设置（AWS CLI）：aws ecr put-image-scanning-configuration --repository-name $REPO_NAME --image-scanning-configuration scanOnPush=true --region $REGION_CODE使用以下步骤在 AWS 管理控制台中启动手动镜像扫描。    打开 Amazon ECR 控制台，网址为 https://console.aws.amazon.com/ecr/repositories。    从导航栏中选择要在其中创建仓库的区域。    在导航窗格中，选择“仓库”。    在“仓库”页面上，选择包含要扫描镜像的仓库。    在“镜像”页面上，选择要扫描的镜像，然后选择“扫描”。
         scored: false
 
       - id: 5.1.2
-        text: "Minimize user access to Amazon ECR (Manual)"
+        text: "最小化用户对 Amazon ECR 的访问权限（手动操作）。"
         type: "manual"
-        remediation: |
-          Before you use IAM to manage access to Amazon ECR, you should understand what IAM features
-          are available to use with Amazon ECR. To get a high-level view of how Amazon ECR and other
-          AWS services work with IAM, see AWS Services That Work with IAM in the IAM User Guide.
+        remediation: |-
+          在使用 IAM 管理对 Amazon ECR 的访问之前，您应该了解可与 Amazon ECR 一起使用的 IAM 功能。要获取关于 Amazon ECR 和其他 AWS 服务如何使用 IAM 的高层视图，请参阅 IAM 用户指南中的“与 IAM 一起使用的 AWS 服务”部分。
         scored: false
 
       - id: 5.1.3
-        text: "Minimize cluster access to read-only for Amazon ECR (Manual)"
+        text: "将 Amazon ECR 的集群访问权限最小化，设置为只读（手动）。"
         type: "manual"
-        remediation: |
-          You can use your Amazon ECR images with Amazon EKS, but you need to satisfy the following prerequisites.
-
-          The Amazon EKS worker node IAM role (NodeInstanceRole) that you use with your worker nodes must possess
-          the following IAM policy permissions for Amazon ECR.
-
-          {
-              "Version": "2012-10-17",
-              "Statement": [
-                  {
-                      "Effect": "Allow",
-                      "Action": [
-                          "ecr:BatchCheckLayerAvailability",
-                          "ecr:BatchGetImage",
-                          "ecr:GetDownloadUrlForLayer",
-                          "ecr:GetAuthorizationToken"
-                      ],
-                      "Resource": "*"
-                  }
-              ]
-          }
+        remediation: |-
+          您可以在 Amazon EKS 中使用您的 Amazon ECR 镜像，但需要满足以下先决条件。您在工作节点上使用的 Amazon EKS 工作节点 IAM 角色（NodeInstanceRole）必须具备以下 IAM 策略权限用于 Amazon ECR。{    "Version": "2012-10-17",    "Statement": [        {            "Effect": "Allow",            "Action": [                "ecr:BatchCheckLayerAvailability",                "ecr:BatchGetImage",                "ecr:GetDownloadUrlForLayer",                "ecr:GetAuthorizationToken"            ],            "Resource": "*"        }    ]}
         scored: false
 
       - id: 5.1.4
-        text: "Minimize Container Registries to only those approved (Manual)"
+        text: "将容器注册表最小化，仅保留那些经过批准的（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
   - id: 5.2
-    text: "Identity and Access Management (IAM)"
+    text: "身份和访问管理（IAM）"
     checks:
       - id: 5.2.1
-        text: "Prefer using dedicated Amazon EKS Service Accounts (Manual)"
+        text: "建议使用专用的 Amazon EKS 服务账户 (手动方式)。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施。"
         scored: false
 
   - id: 5.3
-    text: "AWS Key Management Service (KMS)"
+    text: "AWS 密钥管理服务（KMS）"
     checks:
       - id: 5.3.1
-        text: "Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs) managed in AWS KMS (Manual)"
+        text: "确保使用 AWS KMS 管理的客户主密钥（CMKs）对 Kubernetes Secrets 进行加密（手动方式）。"
         type: "manual"
-        remediation: |
-          This process can only be performed during Cluster Creation.
-
-          Enable 'Secrets Encryption' during Amazon EKS cluster creation as described
-          in the links within the 'References' section.
+        remediation: |-
+          这个过程只能在集群创建期间执行。在创建 Amazon EKS 集群时启用 "Secrets Encryption"，如在 "References" 部分的链接中所述。
         scored: false
 
   - id: 5.4
-    text: "Cluster Networking"
+    text: "集群网络"
     checks:
       - id: 5.4.1
-        text: "Restrict Access to the Control Plane Endpoint (Manual)"
+        text: "限制对控制平面终结点的访问（手动方式）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复"
         scored: false
 
       - id: 5.4.2
-        text: "Ensure clusters are created with Private Endpoint Enabled and Public Access Disabled (Manual)"
+        text: "确保使用私有端点启用并禁用公共访问（手动）创建集群。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复"
         scored: false
 
       - id: 5.4.3
-        text: "Ensure clusters are created with Private Nodes (Manual)"
+        text: "确保使用私有节点（手动）创建集群。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施"
         scored: false
 
       - id: 5.4.4
-        text: "Ensure Network Policy is Enabled and set as appropriate (Manual)"
+        text: "确保网络策略已启用并设置为适当的状态（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复。"
         scored: false
 
       - id: 5.4.5
-        text: "Encrypt traffic to HTTPS load balancers with TLS certificates (Manual)"
+        text: "使用 TLS 证书对流量加密到 HTTPS 负载均衡器（手动设置）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复。"
         scored: false
 
 
   - id: 5.5
-    text: "Authentication and Authorization"
+    text: "认证与授权"
     checks:
       - id: 5.5.1
-        text: "Manage Kubernetes RBAC users with AWS IAM Authenticator for Kubernetes (Manual)"
+        text: "使用 AWS IAM Authenticator for Kubernetes（手动方式）管理 Kubernetes RBAC 用户。"
         type: "manual"
-        remediation: |
-          Refer to the 'Managing users or IAM roles for your cluster' in Amazon EKS documentation.
+        remediation: |-
+          请参考亚马逊 EKS 文档中关于“管理集群用户或 IAM 角色”的部分。
         scored: false
 
 
   - id: 5.6
-    text: "Other Cluster Configurations"
+    text: "其他集群配置"
     checks:
       - id: 5.6.1
-        text: "Consider Fargate for running untrusted workloads (Manual)"
+        text: "考虑使用 Fargate 运行不受信任的工作负载（手动）。"
         type: "manual"
-        remediation: |
-          Create a Fargate profile for your cluster Before you can schedule pods running on Fargate
-          in your cluster, you must define a Fargate profile that specifies which pods should use
-          Fargate when they are launched. For more information, see AWS Fargate profile.
-
-          Note: If you created your cluster with eksctl using the --fargate option, then a Fargate profile has
-          already been created for your cluster with selectors for all pods in the kube-system
-          and default namespaces. Use the following procedure to create Fargate profiles for
-          any other namespaces you would like to use with Fargate.
+        remediation: |-
+          在集群中创建一个 Fargate 配置文件，在你可以调度在 Fargate 上运行的 Pod 之前，你必须定义一个 Fargate 配置文件，指定哪些 Pod 在启动时应该使用 Fargate。有关更多信息，请参见 AWS Fargate 配置文件。注意：如果你使用 eksctl 带有 --fargate 选项创建了集群，那么一个 Fargate 配置文件已经为你的集群创建成功，并为 kube-system 和 default 命名空间中的所有 Pod 创建了选择器。使用以下步骤为你希望与 Fargate 一起使用的其他命名空间创建 Fargate 配置文件。
         scored: false

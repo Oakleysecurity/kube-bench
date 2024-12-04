@@ -1,46 +1,44 @@
----
 controls:
 version: "gke-1.0"
 id: 2
-text: "Etcd Node Configuration"
+text: "Etcd 节点配置"
 type: "etcd"
 groups:
   - id: 2
-    text: "Etcd Node Configuration Files"
+    text: "Etcd 节点配置文件"
     type: skip
     checks:
       - id: 2.1
-        text: "Ensure that the --cert-file and --key-file arguments are set as appropriate (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保将 --cert-file 和 --key-file 参数设置为适当的数值（未评分）。"
+        remediation: "这个控制在 GKE 中无法修改。"
         scored: false
 
       - id: 2.2
-        text: "Ensure that the --client-cert-auth argument is set to true (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保将 --client-cert-auth 参数设置为 true（未评分）。"
+        remediation: "在 GKE 中无法修改此控件。"
         scored: false
 
       - id: 2.3
-        text: "Ensure that the --auto-tls argument is not set to true (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保 --auto-tls 参数未设置为 true（未评分）。"
+        remediation: "在 GKE 中无法修改这个控制。"
         scored: false
 
       - id: 2.4
-        text: "Ensure that the --peer-cert-file and --peer-key-file arguments are
-        set as appropriate (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保将 --peer-cert-file 和 --peer-key-file 参数设置为适当的数值（未评分）。"
+        remediation: "无法在 GKE 中修改此控件。"
         scored: false
 
       - id: 2.5
-        text: "Ensure that the --peer-client-cert-auth argument is set to true (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保将 --peer-client-cert-auth 参数设置为 true（未评分）。"
+        remediation: "这个控制项在 GKE 中无法修改。"
         scored: false
 
       - id: 2.6
-        text: "Ensure that the --peer-auto-tls argument is not set to true (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保不将 --peer-auto-tls 参数设置为 true（未评分）。"
+        remediation: "在GKE中无法修改此控件。"
         scored: false
 
       - id: 2.7
-        text: "Ensure that a unique Certificate Authority is used for etcd (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保为 etcd 使用一个唯一的证书颁发机构（不计分）。"
+        remediation: "在 GKE 中无法修改此控件。"
         scored: false

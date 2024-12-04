@@ -1,706 +1,294 @@
----
 controls:
 version: "gke-1.2.0"
 id: 5
-text: "Managed Services"
+text: "托管服务"
 type: "managedservices"
 groups:
   - id: 5.1
-    text: "Image Registry and Image Scanning"
+    text: "镜像仓库和镜像扫描"
     checks:
       - id: 5.1.1
-        text: "Ensure Image Vulnerability Scanning using GCR Container Analysis
-        or a third-party provider (Manual)"
+        text: "确保使用 GCR 容器分析或第三方提供程序进行镜像漏洞扫描（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-
-            gcloud services enable containerscanning.googleapis.com
+        remediation: |-
+          使用命令行：  gcloud services enable containerscanning.googleapis.com
         scored: false
 
       - id: 5.1.2
-        text: "Minimize user access to GCR (Manual)"
+        text: "限制用户对 GCR 的访问权限（手动方式）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To change roles at the GCR bucket level:
-            Firstly, run the following if read permissions are required:
-
-              gsutil iam ch [TYPE]:[EMAIL-ADDRESS]:objectViewer
-              gs://artifacts.[PROJECT_ID].appspot.com
-
-            Then remove the excessively privileged role (Storage Admin / Storage Object Admin /
-            Storage Object Creator) using:
-
-              gsutil iam ch -d [TYPE]:[EMAIL-ADDRESS]:[ROLE]
-              gs://artifacts.[PROJECT_ID].appspot.com
-
-            where:
-              [TYPE] can be one of the following:
-                    o user, if the [EMAIL-ADDRESS] is a Google account
-                    o serviceAccount, if [EMAIL-ADDRESS] specifies a Service account
-              [EMAIL-ADDRESS] can be one of the following:
-                    o a Google account (for example, someone@example.com)
-                    o a Cloud IAM service account
-                    To modify roles defined at the project level and subsequently inherited within the GCR
-                    bucket, or the Service Account User role, extract the IAM policy file, modify it accordingly
-            and apply it using:
-
-              gcloud projects set-iam-policy [PROJECT_ID] [POLICY_FILE]
+        remediation: |-
+          使用命令行：  若要在 GCR 存储桶级别更改角色：  首先，如果需要读取权限，请运行以下命令：    gsutil iam ch [TYPE]:[EMAIL-ADDRESS]:objectViewer    gs://artifacts.[PROJECT_ID].appspot.com  然后，通过以下命令移除过度特权的角色（Storage Admin / Storage Object Admin / Storage Object Creator）：    gsutil iam ch -d [TYPE]:[EMAIL-ADDRESS]:[ROLE]    gs://artifacts.[PROJECT_ID].appspot.com  其中：    [TYPE] 可以是以下之一：          o user，如果 [EMAIL-ADDRESS] 是 Google 账号          o serviceAccount，如果 [EMAIL-ADDRESS] 指定了服务账号    [EMAIL-ADDRESS] 可以是以下之一：          o Google 账号（例如，someone@example.com）          o Cloud IAM 服务账号          要修改在项目级别定义并随后在 GCR 存储桶内继承的角色或 Service Account User 角色，需提取 IAM 策略文件，相应修改并应用：    gcloud projects set-iam-policy [PROJECT_ID] [POLICY_FILE]
         scored: false
 
       - id: 5.1.3
-        text: "Minimize cluster access to read-only for GCR (Manual)"
+        text: "将集群对 GCR 的访问权限最小化，仅设置为只读（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            For an account explicitly granted to the bucket. First, add read access to the Kubernetes
-            Service Account
-
-              gsutil iam ch [TYPE]:[EMAIL-ADDRESS]:objectViewer
-              gs://artifacts.[PROJECT_ID].appspot.com
-
-              where:
-              [TYPE] can be one of the following:
-                      o user, if the [EMAIL-ADDRESS] is a Google account
-                      o serviceAccount, if [EMAIL-ADDRESS] specifies a Service account
-              [EMAIL-ADDRESS] can be one of the following:
-                      o a Google account (for example, someone@example.com)
-                      o a Cloud IAM service account
-
-              Then remove the excessively privileged role (Storage Admin / Storage Object Admin /
-              Storage Object Creator) using:
-
-                gsutil iam ch -d [TYPE]:[EMAIL-ADDRESS]:[ROLE]
-                gs://artifacts.[PROJECT_ID].appspot.com
-
-              For an account that inherits access to the GCR Bucket through Project level permissions,
-              modify the Projects IAM policy file accordingly, then upload it using:
-
-                gcloud projects set-iam-policy [PROJECT_ID] [POLICY_FILE]
+        remediation: |-
+          使用命令行：对于明确授予存储桶访问权限的帐户。首先，为 Kubernetes 服务账户添加读取权限```gsutil iam ch [TYPE]:[EMAIL-ADDRESS]:objectViewer gs://artifacts.[PROJECT_ID].appspot.com```其中：- [TYPE] 可以是以下之一：    - user，如果 [EMAIL-ADDRESS] 是一个 Google 帐户    - serviceAccount，如果 [EMAIL-ADDRESS] 指定一个服务账户- [EMAIL-ADDRESS] 可以是以下之一：    - Google 帐户（例如，someone@example.com）    - 云 IAM 服务账户然后，使用以下命令移除权限过大的角色（Storage Admin / Storage Object Admin / Storage Object Creator）：```gsutil iam ch -d [TYPE]:[EMAIL-ADDRESS]:[ROLE] gs://artifacts.[PROJECT_ID].appspot.com```对于通过项目级权限继承访问 GCR 存储桶的帐户，相应地修改项目的 IAM 策略文件，然后使用以下命令上传：```gcloud projects set-iam-policy [PROJECT_ID] [POLICY_FILE]```
         scored: false
 
       - id: 5.1.4
-        text: "Minimize Container Registries to only those approved (Manual)"
+        text: "将容器仓库最小化，仅保留已批准的（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            First, update the cluster to enable Binary Authorization:
-
-              gcloud container cluster update [CLUSTER_NAME] \
-                --enable-binauthz
-
-            Create a Binary Authorization Policy using the Binary Authorization Policy Reference
-            (https://cloud.google.com/binary-authorization/docs/policy-yaml-reference) for guidance.
-            Import the policy file into Binary Authorization:
-
-              gcloud container binauthz policy import [YAML_POLICY]
+        remediation: |-
+          使用命令行：首先，更新集群以启用二进制授权：gcloud container cluster update [CLUSTER_NAME] \  --enable-binauthz使用二进制授权策略参考指南（https://cloud.google.com/binary-authorization/docs/policy-yaml-reference）创建一个二进制授权策略。将策略文件导入到二进制授权中：gcloud container binauthz policy import [YAML_POLICY]
         scored: false
 
   - id: 5.2
-    text: "Identity and Access Management (IAM)"
+    text: "身份和访问管理（IAM）"
     checks:
       - id: 5.2.1
-        text: "Ensure GKE clusters are not running using the Compute Engine
-        default service account (Manual)"
+        text: "确保 GKE 集群未在使用 Compute Engine 默认服务账号 (手动)。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Firstly, create a minimally privileged service account:
-
-              gcloud iam service-accounts create [SA_NAME] \
-                --display-name "GKE Node Service Account"
-              export NODE_SA_EMAIL=`gcloud iam service-accounts list \
-                --format='value(email)' \
-                --filter='displayName:GKE Node Service Account'`
-
-            Grant the following roles to the service account:
-
-              export PROJECT_ID=`gcloud config get-value project`
-              gcloud projects add-iam-policy-binding $PROJECT_ID \
-                --member serviceAccount:$NODE_SA_EMAIL \
-                --role roles/monitoring.metricWriter
-              gcloud projects add-iam-policy-binding $PROJECT_ID \
-                --member serviceAccount:$NODE_SA_EMAIL \
-                --role roles/monitoring.viewer
-              gcloud projects add-iam-policy-binding $PROJECT_ID \
-                --member serviceAccount:$NODE_SA_EMAIL \
-                --role roles/logging.logWriter
-
-            To create a new Node pool using the Service account, run the following command:
-
-              gcloud container node-pools create [NODE_POOL] \
-                --service-account=[SA_NAME]@[PROJECT_ID].iam.gserviceaccount.com \
-                --cluster=[CLUSTER_NAME] --zone [COMPUTE_ZONE]
-
-            You will need to migrate your workloads to the new Node pool, and delete Node pools that
-            use the default service account to complete the remediation.
+        remediation: |-
+          使用命令行：首先，创建一个最小特权的服务账号：```gcloud iam service-accounts create [SA_NAME] \  --display-name "GKE Node Service Account"export NODE_SA_EMAIL=`gcloud iam service-accounts list \  --format='value(email)' \  --filter='displayName:GKE Node Service Account'````授予该服务账号以下角色：```export PROJECT_ID=`gcloud config get-value project`gcloud projects add-iam-policy-binding $PROJECT_ID \  --member serviceAccount:$NODE_SA_EMAIL \  --role roles/monitoring.metricWritergcloud projects add-iam-policy-binding $PROJECT_ID \  --member serviceAccount:$NODE_SA_EMAIL \  --role roles/monitoring.viewergcloud projects add-iam-policy-binding $PROJECT_ID \  --member serviceAccount:$NODE_SA_EMAIL \  --role roles/logging.logWriter```要使用该服务账号创建一个新的节点池，请运行以下命令：```gcloud container node-pools create [NODE_POOL] \  --service-account=[SA_NAME]@[PROJECT_ID].iam.gserviceaccount.com \  --cluster=[CLUSTER_NAME] --zone [COMPUTE_ZONE]```您需要将您的工作负载迁移至新的节点池，并删除使用默认服务账号的节点池，以完成修复。
         scored: false
 
       - id: 5.2.2
-        text: "Prefer using dedicated GCP Service Accounts and Workload Identity (Manual)"
+        text: "推荐使用专用的 GCP 服务账号和工作负载身份验证（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-
-              gcloud beta container clusters update [CLUSTER_NAME] --zone [CLUSTER_ZONE] \
-                --identity-namespace=[PROJECT_ID].svc.id.goog
-
-            Note that existing Node pools are unaffected. New Node pools default to --workload-
-            metadata-from-node=GKE_METADATA_SERVER .
-
-            Then, modify existing Node pools to enable GKE_METADATA_SERVER:
-
-              gcloud beta container node-pools update [NODEPOOL_NAME] \
-                --cluster=[CLUSTER_NAME] --zone [CLUSTER_ZONE] \
-                --workload-metadata-from-node=GKE_METADATA_SERVER
-
-            You may also need to modify workloads in order for them to use Workload Identity as
-            described within https://cloud.google.com/kubernetes-engine/docs/how-to/workload-
-            identity. Also consider the effects on the availability of your hosted workloads as Node
-            pools are updated, it may be more appropriate to create new Node Pools.
+        remediation: |-
+          使用命令行：```gcloud beta container clusters update [CLUSTER_NAME] --zone [CLUSTER_ZONE] \  --identity-namespace=[PROJECT_ID].svc.id.goog```请注意，现有的节点池不受影响。新节点池默认为 --workload-metadata-from-node=GKE_METADATA_SERVER。然后，修改现有的节点池以启用 GKE_METADATA_SERVER：```gcloud beta container node-pools update [NODEPOOL_NAME] \  --cluster=[CLUSTER_NAME] --zone [CLUSTER_ZONE] \  --workload-metadata-from-node=GKE_METADATA_SERVER```您可能还需要修改工作负载，以便它们使用 Workload Identity，具体请参考https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity中的描述。同时考虑更新节点池对托管工作负载可用性的影响，可能更适合创建新的节点池。
         scored: false
 
   - id: 5.3
-    text: "Cloud Key Management Service (Cloud KMS)"
+    text: "云密钥管理服务（Cloud KMS）"
     checks:
       - id: 5.3.1
-        text: "Ensure Kubernetes Secrets are encrypted using keys managed in Cloud KMS (Manual)"
+        text: "确保使用 Cloud KMS 管理的密钥对 Kubernetes Secrets 进行加密（手动方式）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To create a key
-
-            Create a key ring:
-
-              gcloud kms keyrings create [RING_NAME] \
-                --location [LOCATION] \
-                --project [KEY_PROJECT_ID]
-
-            Create a key:
-
-              gcloud kms keys create [KEY_NAME] \
-                --location [LOCATION] \
-                --keyring [RING_NAME] \
-                --purpose encryption \
-                --project [KEY_PROJECT_ID]
-
-            Grant the Kubernetes Engine Service Agent service account the Cloud KMS CryptoKey
-            Encrypter/Decrypter role:
-
-              gcloud kms keys add-iam-policy-binding [KEY_NAME] \
-                --location [LOCATION] \
-                --keyring [RING_NAME] \
-                --member serviceAccount:[SERVICE_ACCOUNT_NAME] \
-                --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
-                --project [KEY_PROJECT_ID]
-
-            To create a new cluster with Application-layer Secrets Encryption:
-
-              gcloud container clusters create [CLUSTER_NAME] \
-                --cluster-version=latest \
-                --zone [ZONE] \
-                --database-encryption-key projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKey s/[KEY_NAME] \
-                --project [CLUSTER_PROJECT_ID]
-
-            To enable on an existing cluster:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --zone [ZONE] \
-                --database-encryption-key projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKey s/[KEY_NAME] \
-                --project [CLUSTER_PROJECT_ID]
+        remediation: |-
+          使用命令行：    创建一个密钥环：    gcloud kms keyrings create [RING_NAME] \      --location [LOCATION] \      --project [KEY_PROJECT_ID]  创建一个密钥：    gcloud kms keys create [KEY_NAME] \      --location [LOCATION] \      --keyring [RING_NAME] \      --purpose encryption \      --project [KEY_PROJECT_ID]  授予 Kubernetes Engine 服务代理服务帐户 Cloud KMS CryptoKey Encrypter/Decrypter 角色：    gcloud kms keys add-iam-policy-binding [KEY_NAME] \      --location [LOCATION] \      --keyring [RING_NAME] \      --member serviceAccount:[SERVICE_ACCOUNT_NAME] \      --role roles/cloudkms.cryptoKeyEncrypterDecrypter \      --project [KEY_PROJECT_ID]  创建一个带应用层 Secrets 加密的新集群：    gcloud container clusters create [CLUSTER_NAME] \      --cluster-version=latest \      --zone [ZONE] \      --database-encryption-key projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME] \      --project [CLUSTER_PROJECT_ID]  在现有集群上启用：    gcloud container clusters update [CLUSTER_NAME] \      --zone [ZONE] \      --database-encryption-key projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME] \      --project [CLUSTER_PROJECT_ID]
         scored: false
 
   - id: 5.4
-    text: "Node Metadata"
+    text: "节点元数据"
     checks:
       - id: 5.4.1
-        text: "Ensure legacy Compute Engine instance metadata APIs are Disabled (Automated)"
+        text: "确保禁用传统的 Compute Engine 实例元数据 API（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To update an existing cluster, create a new Node pool with the legacy GCE metadata
-            endpoint disabled:
-
-              gcloud container node-pools create [POOL_NAME] \
-                --metadata disable-legacy-endpoints=true \
-                --cluster [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE]
-
-            You will need to migrate workloads from any existing non-conforming Node pools, to the
-            new Node pool, then delete non-conforming Node pools to complete the remediation.
+        remediation: |-
+          使用命令行：要更新现有集群，请创建一个新的 Node 池，将传统的 GCE metadata 端点禁用：gcloud container node-pools create [POOL_NAME] \  --metadata disable-legacy-endpoints=true \  --cluster [CLUSTER_NAME] \  --zone [COMPUTE_ZONE]您需要将工作负载从任何现有的非符合标准的 Node 池迁移到新的 Node 池，然后删除非符合标准的 Node 池以完成整改。
         scored: false
 
       - id: 5.4.2
-        text: "Ensure the GKE Metadata Server is Enabled (Automated)"
+        text: "确保启用 GKE 元数据服务器（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-              gcloud beta container clusters update [CLUSTER_NAME] \
-                --identity-namespace=[PROJECT_ID].svc.id.goog
-            Note that existing Node pools are unaffected. New Node pools default to --workload-
-            metadata-from-node=GKE_METADATA_SERVER .
-
-            To modify an existing Node pool to enable GKE Metadata Server:
-
-              gcloud beta container node-pools update [NODEPOOL_NAME] \
-                --cluster=[CLUSTER_NAME] \
-                --workload-metadata-from-node=GKE_METADATA_SERVER
-
-            You may also need to modify workloads in order for them to use Workload Identity as
-            described within https://cloud.google.com/kubernetes-engine/docs/how-to/workload-
-            identity.
+        remediation: |-
+          使用命令行：```gcloud beta container clusters update [CLUSTER_NAME] \  --identity-namespace=[PROJECT_ID].svc.id.goog请注意，现有的节点池不受影响。新的节点池默认为 --workload-metadata-from-node=GKE_METADATA_SERVER。要修改现有节点池以启用 GKE 元数据服务器：gcloud beta container node-pools update [NODEPOOL_NAME] \  --cluster=[CLUSTER_NAME] \  --workload-metadata-from-node=GKE_METADATA_SERVER您可能还需要修改工作负载，以便它们可以使用工作负载身份，具体操作请参考 https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity。```
         scored: false
 
   - id: 5.5
-    text: "Node Configuration and Maintenance"
+    text: "节点配置和维护"
     checks:
       - id: 5.5.1
-        text: "Ensure Container-Optimized OS (COS) is used for GKE node images (Automated)"
+        text: "确保在 GKE 节点镜像中使用 Container-Optimized OS（COS）（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To set the node image to cos for an existing cluster's Node pool:
-
-              gcloud container clusters upgrade [CLUSTER_NAME]\
-                --image-type cos \
-                --zone [COMPUTE_ZONE] --node-pool [POOL_NAME]
+        remediation: |-
+          使用命令行：  将现有集群的节点池的节点镜像设置为 cos：    gcloud container clusters upgrade [CLUSTER_NAME]\      --image-type cos \      --zone [COMPUTE_ZONE] --node-pool [POOL_NAME]
         scored: false
 
       - id: 5.5.2
-        text: "Ensure Node Auto-Repair is enabled for GKE nodes (Automated)"
+        text: "确保 GKE 节点启用了节点自动修复（Automated）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable node auto-repair for an existing cluster with Node pool, run the following
-            command:
-
-              gcloud container node-pools update [POOL_NAME] \
-                --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --enable-autorepair
+        remediation: |-
+          使用命令行：要为具有节点池的现有集群启用节点自动修复，请运行以下命令：```bashgcloud container node-pools update [POOL_NAME] \  --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \  --enable-autorepair```
         scored: false
 
       - id: 5.5.3
-        text: "Ensure Node Auto-Upgrade is enabled for GKE nodes (Automated)"
+        text: "确保 GKE 节点启用了节点自动升级（自动化方式）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable node auto-upgrade for an existing cluster's Node pool, run the following
-            command:
-
-              gcloud container node-pools update [NODE_POOL] \
-                --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --enable-autoupgrade
+        remediation: |-
+          使用命令行：要为现有集群的节点池启用自动升级，请运行以下命令：gcloud container node-pools update [NODE_POOL] \  --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \  --enable-autoupgrade
         scored: false
 
       - id: 5.5.4
-        text: "Automate GKE version management using Release Channels (Manual)"
+        text: "使用发布通道（手动）来自动化管理 GKE 版本。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Create a new cluster by running the following command:
-
-              gcloud beta container clusters create [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --release-channel [RELEASE_CHANNEL]
-
-            where [RELEASE_CHANNEL] is stable or regular according to your needs.
+        remediation: |-
+          使用命令行：运行以下命令创建一个新的集群：    gcloud beta container clusters create [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --release-channel [RELEASE_CHANNEL]其中 [RELEASE_CHANNEL] 根据您的需求可以为 stable 或 regular。
         scored: false
 
       - id: 5.5.5
-        text: "Ensure Shielded GKE Nodes are Enabled (Manual)"
+        text: "确保启用了 Shielded GKE 节点（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To create a Node pool within the cluster with Integrity Monitoring enabled, run the
-            following command:
-
-              gcloud beta container node-pools create [NODEPOOL_NAME] \
-                --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --shielded-integrity-monitoring
-
-            You will also need to migrate workloads from existing non-conforming Node pools to the
-            newly created Node pool, then delete the non-conforming pools.
+        remediation: |-
+          使用命令行：要在集群中创建启用完整性监控的节点池，请运行以下命令：```bashgcloud beta container node-pools create [NODEPOOL_NAME] \  --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \  --shielded-integrity-monitoring```您还需要将现有不符合条件的节点池中的工作负载迁移到新创建的节点池，然后删除这些不符合条件的节点池。
         scored: false
 
       - id: 5.5.6
-        text: "Ensure Integrity Monitoring for Shielded GKE Nodes is Enabled (Automated)"
+        text: "确保为受保护的 GKE 节点启用完整性监控（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To create a Node pool within the cluster with Integrity Monitoring enabled, run the
-            following command:
-
-              gcloud beta container node-pools create [NODEPOOL_NAME] \
-                --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --shielded-integrity-monitoring
-
-          You will also need to migrate workloads from existing non-conforming Node pools to the newly created Node pool,
-          then delete the non-conforming pools.
+        remediation: |-
+          使用命令行：要在集群中创建一个启用完整性监控的节点池，请运行以下命令：```bashgcloud beta container node-pools create [NODEPOOL_NAME] \  --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \  --shielded-integrity-monitoring```您还需要将现有的非符合标准的节点池中的工作负载迁移到新创建的节点池，然后删除非符合标准的节点池。
         scored: false
 
       - id: 5.5.7
-        text: "Ensure Secure Boot for Shielded GKE Nodes is Enabled (Automated)"
+        text: "确保启用了 Shielded GKE 节点的安全启动（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To create a Node pool within the cluster with Secure Boot enabled, run the following
-            command:
-
-              gcloud beta container node-pools create [NODEPOOL_NAME] \
-                --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --shielded-secure-boot
-
-            You will also need to migrate workloads from existing non-conforming Node pools to the
-            newly created Node pool, then delete the non-conforming pools.
+        remediation: |-
+          使用命令行：要在集群中启用安全引导创建一个节点池，运行以下命令：```bashgcloud beta container node-pools create [NODEPOOL_NAME] \  --cluster [CLUSTER_NAME] --zone [COMPUTE_ZONE] \  --shielded-secure-boot```您还需要将工作负载从现有的不符合规范的节点池迁移到新创建的节点池，然后删除不符合规范的节点池。
         scored: false
 
   - id: 5.6
-    text: "Cluster Networking"
+    text: "集群网络"
     checks:
       - id: 5.6.1
-        text: "Enable VPC Flow Logs and Intranode Visibility (Automated)"
+        text: "启用 VPC 流日志和节点内可见性（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable intranode visibility on an existing cluster, run the following command:
-
-              gcloud beta container clusters update [CLUSTER_NAME] \
-                --enable-intra-node-visibility
+        remediation: |-
+          使用命令行：为了在现有集群上启用节点内可见性，请运行以下命令：    gcloud beta container clusters update [CLUSTER_NAME] \      --enable-intra-node-visibility
         scored: false
 
       - id: 5.6.2
-        text: "Ensure use of VPC-native clusters (Automated)"
+        text: "确保使用 VPC-native 集群（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable Alias IP on a new cluster, run the following command:
-
-              gcloud container clusters create [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --enable-ip-alias
+        remediation: |-
+          使用命令行:要在新集群上启用别名IP，请运行以下命令：      gcloud container clusters create [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --enable-ip-alias
         scored: false
 
       - id: 5.6.3
-        text: "Ensure Master Authorized Networks is Enabled (Manual)"
+        text: "确保启用了主控制平面授权网络（手动方式）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To check Master Authorized Networks status for an existing cluster, run the following
-            command;
-
-              gcloud container clusters describe [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --format json | jq '.masterAuthorizedNetworksConfig'
-
-            The output should return
-
-              {
-                "enabled": true
-              }
-
-            if Master Authorized Networks is enabled.
-
-            If Master Authorized Networks is disabled, the
-            above command will return null ( { } ).
+        remediation: |-
+          使用命令行：要检查现有集群的主授权网络状态，请运行以下命令：```gcloud container clusters describe [CLUSTER_NAME] \  --zone [COMPUTE_ZONE] \  --format json | jq '.masterAuthorizedNetworksConfig'```输出应该返回```{  "enabled": true}```如果主授权网络已启用。如果主授权网络已禁用，上述命令将返回 null（{}）。
         scored: false
 
       - id: 5.6.4
-        text: "Ensure clusters are created with Private Endpoint Enabled and Public Access Disabled (Manual)"
+        text: "确保集群创建时启用私有端点，禁用公共访问（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Create a cluster with a Private Endpoint enabled and Public Access disabled by including
-            the --enable-private-endpoint flag within the cluster create command:
-
-              gcloud container clusters create [CLUSTER_NAME] \
-                --enable-private-endpoint
-
-            Setting this flag also requires the setting of --enable-private-nodes , --enable-ip-alias
-            and --master-ipv4-cidr=[MASTER_CIDR_RANGE] .
+        remediation: |-
+          使用命令行：通过在集群创建命令中包含 --enable-private-endpoint 标志，创建启用了私有端点但禁用了公共访问的集群：    gcloud container clusters create [CLUSTER_NAME] \      --enable-private-endpoint设置此标志还需要设置 --enable-private-nodes、--enable-ip-alias，并且 --master-ipv4-cidr=[MASTER_CIDR_RANGE]。
         scored: false
 
       - id: 5.6.5
-        text: "Ensure clusters are created with Private Nodes (Manual)"
+        text: "确保使用私有节点（手动）创建集群。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To create a cluster with Private Nodes enabled, include the --enable-private-nodes flag
-            within the cluster create command:
-
-              gcloud container clusters create [CLUSTER_NAME] \
-                --enable-private-nodes
-
-            Setting this flag also requires the setting of --enable-ip-alias and --master-ipv4-
-            cidr=[MASTER_CIDR_RANGE] .
+        remediation: |-
+          使用命令行：要创建一个启用了私有节点的集群，请在 cluster create 命令中包含 --enable-private-nodes 标志：    gcloud container clusters create [CLUSTER_NAME] \      --enable-private-nodes设置此标志还需要设置 --enable-ip-alias 和 --master-ipv4-cidr=[MASTER_CIDR_RANGE]。
         scored: false
 
       - id: 5.6.6
-        text: "Consider firewalling GKE worker nodes (Manual)"
+        text: "考虑为 GKE 工作节点设置防火墙规则（手动操作）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Use the following command to generate firewall rules, setting the variables as appropriate.
-            You may want to use the target [TAG] and [SERVICE_ACCOUNT] previously identified.
-
-              gcloud compute firewall-rules create FIREWALL_RULE_NAME \
-                --network [NETWORK] \
-                --priority [PRIORITY] \
-                --direction [DIRECTION] \
-                --action [ACTION] \
-                --target-tags [TAG] \
-                --target-service-accounts [SERVICE_ACCOUNT] \
-                --source-ranges [SOURCE_CIDR-RANGE] \
-                --source-tags [SOURCE_TAGS] \
-                --source-service-accounts=[SOURCE_SERVICE_ACCOUNT] \
-                --destination-ranges [DESTINATION_CIDR_RANGE] \
-                --rules [RULES]
+        remediation: |-
+          使用命令行：使用以下命令生成防火墙规则，根据实际情况设置变量。您可能需要使用之前识别的目标[TAG]和[SERVICE_ACCOUNT]。gcloud compute firewall-rules create FIREWALL_RULE_NAME \--network [NETWORK] \--priority [PRIORITY] \--direction [DIRECTION] \--action [ACTION] \--target-tags [TAG] \--target-service-accounts [SERVICE_ACCOUNT] \--source-ranges [SOURCE_CIDR-RANGE] \--source-tags [SOURCE_TAGS] \--source-service-accounts=[SOURCE_SERVICE_ACCOUNT] \--destination-ranges [DESTINATION_CIDR_RANGE] \--rules [RULES]
         scored: false
 
       - id: 5.6.7
-        text: "Ensure Network Policy is Enabled and set as appropriate (Manual)"
+        text: "确保网络策略已启用，并设置为适当的值（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable Network Policy for an existing cluster, firstly enable the Network Policy add-on:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --update-addons NetworkPolicy=ENABLED
-
-            Then, enable Network Policy:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --enable-network-policy
+        remediation: |-
+          使用命令行：  要为现有集群启用网络策略，首先需要启用网络策略插件：    gcloud container clusters update [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --update-addons NetworkPolicy=ENABLED  然后，启用网络策略：    gcloud container clusters update [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --enable-network-policy
         scored: false
 
       - id: 5.6.8
-        text: "Ensure use of Google-managed SSL Certificates (Manual)"
+        text: "确保使用 Google 管理的 SSL 证书（手动）。"
         type: "manual"
-        remediation: |
-          If services of type:LoadBalancer are discovered, consider replacing the Service with an
-          Ingress.
-
-          To configure the Ingress and use Google-managed SSL certificates, follow the instructions
-          as listed at https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs.
+        remediation: |-
+          如果发现类型为 LoadBalancer 的服务，考虑将该服务替换为一个 Ingress。要配置 Ingress 并使用 Google 管理的 SSL 证书，请按照 https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs 上列出的说明操作。
         scored: false
 
   - id: 5.7
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 5.7.1
-        text: "Ensure Stackdriver Kubernetes Logging and Monitoring is Enabled (Automated)"
+        text: "确保启用了 Stackdriver Kubernetes 日志记录和监控（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-
-            STACKDRIVER KUBERNETES ENGINE MONITORING SUPPORT (PREFERRED):
-            To enable Stackdriver Kubernetes Engine Monitoring for an existing cluster, run the
-            following command:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --enable-stackdriver-kubernetes
-
-            LEGACY STACKDRIVER SUPPORT:
-            Both Logging and Monitoring support must be enabled.
-            To enable Legacy Stackdriver Logging for an existing cluster, run the following command:
-
-              gcloud container clusters update [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --logging-service logging.googleapis.com
-
-            To enable Legacy Stackdriver Monitoring for an existing cluster, run the following
-            command:
-
-              gcloud container clusters update [CLUSTER_NAME] --zone [COMPUTE_ZONE] \
-                --monitoring-service monitoring.googleapis.com
+        remediation: |-
+          使用命令行：  Stackdriver Kubernetes Engine 监控支持（首选）：  若要为现有集群启用 Stackdriver Kubernetes Engine 监控，请运行以下命令：    gcloud container clusters update [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --enable-stackdriver-kubernetes  传统 Stackdriver 支持：  必须启用日志记录和监控支持。  若要为现有集群启用传统 Stackdriver 日志记录，请运行以下命令：    gcloud container clusters update [CLUSTER_NAME] --zone [COMPUTE_ZONE] \      --logging-service logging.googleapis.com  若要为现有集群启用传统 Stackdriver 监控，请运行以下命令：    gcloud container clusters update [CLUSTER_NAME] --zone [COMPUTE_ZONE] \      --monitoring-service monitoring.googleapis.com
         scored: false
 
       - id: 5.7.2
-        text: "Enable Linux auditd logging (Manual)"
+        text: "启用 Linux auditd 日志记录（手动）"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Download the example manifests:
-
-              curl https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-node-tools/master/os-audit/cos-auditd-logging.yaml \
-                > cos-auditd-logging.yaml
-
-            Edit the example manifests if needed. Then, deploy them:
-
-              kubectl apply -f cos-auditd-logging.yaml
-
-            Verify that the logging Pods have started. If you defined a different Namespace in your
-            manifests, replace cos-auditd with the name of the namespace you're using:
-
-              kubectl get pods --namespace=cos-auditd
+        remediation: |-
+          使用命令行：  下载示例清单：    curl https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-node-tools/master/os-audit/cos-auditd-logging.yaml \      > cos-auditd-logging.yaml  如有需要，编辑示例清单。然后，部署它们：    kubectl apply -f cos-auditd-logging.yaml  验证日志 Pods 是否已启动。如果在清单中定义了一个不同的命名空间，请用您使用的命名空间名称替换 cos-auditd：    kubectl get pods --namespace=cos-auditd
         scored: false
 
   - id: 5.8
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 5.8.1
-        text: "Ensure Basic Authentication using static passwords is Disabled (Automated)"
+        text: "确保使用静态密码的基本身份验证已禁用（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To update an existing cluster and disable Basic Authentication by removing the static
-            password:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --no-enable-basic-auth
+        remediation: |-
+          使用命令行：  若要更新现有集群并通过移除静态密码来禁用基本身份验证：    gcloud container clusters update [集群名称] \      --no-enable-basic-auth
         scored: false
 
       - id: 5.8.2
-        text: "Ensure authentication using Client Certificates is Disabled (Automated)"
+        text: "确保禁用使用客户端证书进行身份验证（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Create a new cluster without a Client Certificate:
-
-              gcloud container clusters create [CLUSTER_NAME] \
-                --no-issue-client-certificate
+        remediation: |-
+          使用命令行：  创建一个新的集群，不包括客户端证书：    gcloud container clusters create [CLUSTER_NAME] \      --no-issue-client-certificate
         scored: false
 
       - id: 5.8.3
-        text: "Manage Kubernetes RBAC users with Google Groups for GKE (Manual)"
+        text: "使用 Google Groups for GKE 手动管理 Kubernetes RBAC 用户。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Follow the G Suite Groups instructions at https://cloud.google.com/kubernetes-
-            engine/docs/how-to/role-based-access-control#google-groups-for-gke.
-
-            Then, create a cluster with
-
-              gcloud beta container clusters create my-cluster \
-                --security-group="gke-security-groups@[yourdomain.com]"
-
-            Finally create Roles, ClusterRoles, RoleBindings, and ClusterRoleBindings that
-            reference your G Suite Groups.
+        remediation: |-
+          使用命令行：  按照 https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control#google-groups-for-gke 中的 G Suite Groups 指示操作。  然后，创建一个包含如下内容的集群：    gcloud beta container clusters create my-cluster \      --security-group="gke-security-groups@[yourdomain.com]"  最后，创建与您的 G Suite Groups 关联的 Roles、ClusterRoles、RoleBindings 和 ClusterRoleBindings。
         scored: false
 
       - id: 5.8.4
-        text: "Ensure Legacy Authorization (ABAC) is Disabled (Automated)"
+        text: "确保禁用传统授权（ABAC）（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To disable Legacy Authorization for an existing cluster, run the following command:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --no-enable-legacy-authorization
+        remediation: |-
+          使用命令行：  要为现有集群禁用旧授权，请运行以下命令：    gcloud container clusters update [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --no-enable-legacy-authorization
         scored: false
 
   - id: 5.9
-    text: "Storage"
+    text: "存储"
     checks:
       - id: 5.9.1
-        text: "Enable Customer-Managed Encryption Keys (CMEK) for GKE Persistent Disks (PD) (Manual)"
+        text: "为 GKE 持久磁盘（PD）启用客户管理加密密钥（CMEK）（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            FOR NODE BOOT DISKS:
-            Create a new node pool using customer-managed encryption keys for the node boot disk, of
-            [DISK_TYPE] either pd-standard or pd-ssd :
-
-              gcloud beta container node-pools create [CLUSTER_NAME] \
-                --disk-type [DISK_TYPE] \
-                --boot-disk-kms-key \
-                projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]
-
-            Create a cluster using customer-managed encryption keys for the node boot disk, of
-            [DISK_TYPE] either pd-standard or pd-ssd :
-
-              gcloud beta container clusters create [CLUSTER_NAME] \
-                --disk-type [DISK_TYPE] \
-                --boot-disk-kms-key \
-                projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]
-
-            FOR ATTACHED DISKS:
-            Follow the instructions detailed at https://cloud.google.com/kubernetes-
-            engine/docs/how-to/using-cmek.
+        remediation: |-
+          使用命令行：  对于节点引导磁盘：  使用客户管理的加密密钥为节点引导磁盘创建一个新的节点池，[DISK_TYPE] 可以是 pd-standard 或 pd-ssd：    gcloud beta container node-pools create [CLUSTER_NAME] \      --disk-type [DISK_TYPE] \      --boot-disk-kms-key \      projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]  使用客户管理的加密密钥为节点引导磁盘创建一个集群，[DISK_TYPE] 可以是 pd-standard 或 pd-ssd：    gcloud beta container clusters create [CLUSTER_NAME] \      --disk-type [DISK_TYPE] \      --boot-disk-kms-key \      projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]  对于附加磁盘：  请按照 https://cloud.google.com/kubernetes-engine/docs/how-to/using-cmek 中详细的指南操作。
         scored: false
 
   - id: 5.10
-    text: "Other Cluster Configurations"
+    text: "其他集群配置"
     checks:
       - id: 5.10.1
-        text: "Ensure Kubernetes Web UI is Disabled (Automated)"
+        text: "确保 Kubernetes Web UI 已禁用（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To disable the Kubernetes Dashboard on an existing cluster, run the following command:
-
-              gcloud container clusters update [CLUSTER_NAME] \
-                --zone [ZONE] \
-                --update-addons=KubernetesDashboard=DISABLED
+        remediation: |-
+          使用命令行：要在现有集群上禁用 Kubernetes 仪表板，运行以下命令：```gcloud container clusters update [CLUSTER_NAME] \  --zone [ZONE] \  --update-addons=KubernetesDashboard=DISABLED```
         scored: false
 
       - id: 5.10.2
-        text: "Ensure that Alpha clusters are not used for production workloads (Automated)"
+        text: "确保 Alpha 集群不用于生产工作负载（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Upon creating a new cluster
-
-              gcloud container clusters create [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE]
-
-            Do not use the --enable-kubernetes-alpha argument.
+        remediation: |-
+          在命令行中使用：在创建一个新的集群时，    gcloud container clusters create [CLUSTER_NAME] \      --zone [COMPUTE_ZONE]  不要使用 --enable-kubernetes-alpha 参数。
         scored: false
 
       - id: 5.10.3
-        text: "Ensure Pod Security Policy is Enabled and set as appropriate (Manual)"
+        text: "确保 Pod 安全策略已启用并设置为适当的值（手动）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable Pod Security Policy for an existing cluster, run the following command:
-
-              gcloud beta container clusters update [CLUSTER_NAME] \
-                --zone [COMPUTE_ZONE] \
-                --enable-pod-security-policy
+        remediation: |-
+          使用命令行：要为现有集群启用 Pod 安全策略，请运行以下命令：    gcloud beta container clusters update [CLUSTER_NAME] \      --zone [COMPUTE_ZONE] \      --enable-pod-security-policy
         scored: false
 
       - id: 5.10.4
-        text: "Consider GKE Sandbox for running untrusted workloads (Manual)"
+        text: "考虑使用 GKE 沙箱来运行不受信任的工作负载（手动方式）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            To enable GKE Sandbox on an existing cluster, a new Node pool must be created.
-
-              gcloud container node-pools create [NODE_POOL_NAME] \
-                --zone=[COMPUTE-ZONE] \
-                --cluster=[CLUSTER_NAME] \
-                --image-type=cos_containerd \
-                --sandbox type=gvisor
+        remediation: |-
+          使用命令行:  要在现有集群上启用 GKE Sandbox，必须创建一个新的节点池。    gcloud container node-pools create [NODE_POOL_NAME] \      --zone=[COMPUTE-ZONE] \      --cluster=[CLUSTER_NAME] \      --image-type=cos_containerd \      --sandbox type=gvisor
         scored: false
 
       - id: 5.10.5
-        text: "Ensure use of Binary Authorization (Automated)"
+        text: "确保使用二进制授权（自动化）。"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Firstly, update the cluster to enable Binary Authorization:
-
-              gcloud container cluster update [CLUSTER_NAME] \
-                --zone [COMPUTE-ZONE] \
-                --enable-binauthz
-
-            Create a Binary Authorization Policy using the Binary Authorization Policy Reference
-            (https://cloud.google.com/binary-authorization/docs/policy-yaml-reference) for
-            guidance.
-
-            Import the policy file into Binary Authorization:
-
-              gcloud container binauthz policy import [YAML_POLICY]
+        remediation: |-
+          使用命令行:首先，更新集群以启用二进制授权：gcloud container cluster update [CLUSTER_NAME] \  --zone [COMPUTE-ZONE] \  --enable-binauthz使用二进制授权策略参考文档(https://cloud.google.com/binary-authorization/docs/policy-yaml-reference)创建二进制授权策略。将策略文件导入到二进制授权：gcloud container binauthz policy import [YAML_POLICY]
         scored: false
 
       - id: 5.10.6
-        text: "Enable Cloud Security Command Center (Cloud SCC) (Manual)"
+        text: "启用云安全中心（Cloud SCC）（手动）"
         type: "manual"
-        remediation: |
-          Using Command Line:
-            Follow the instructions at https://cloud.google.com/security-command-
-            center/docs/quickstart-scc-setup.
+        remediation: |-
+          使用命令行：请按照 https://cloud.google.com/security-command-center/docs/quickstart-scc-setup 上的说明操作。
         scored: false

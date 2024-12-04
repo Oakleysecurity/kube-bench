@@ -1,15 +1,14 @@
----
 controls:
 version: "k3s-cis-1.8"
 id: 2
-text: "Etcd Node Configuration"
+text: "Etcd 节点配置"
 type: "etcd"
 groups:
   - id: 2
-    text: "Etcd Node Configuration"
+    text: "Etcd 节点配置"
     checks:
       - id: 2.1
-        text: "Ensure that the --cert-file and --key-file arguments are set as appropriate (Automated)"
+        text: "确保将 --cert-file 和 --key-file 参数设置为适当的值（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           bin_op: and
@@ -22,16 +21,12 @@ groups:
               compare:
                 op: eq
                 value: "/var/lib/rancher/k3s/server/tls/etcd/server-client.key"
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s generates cert and key files for etcd.
-          These are located in /var/lib/rancher/k3s/server/tls/etcd/.
-          If this check fails, ensure that the configuration file $etcdconf
-          has not been modified to use custom cert and key files.
+        remediation: |-
+          如果使用 sqlite 或外部数据库，则 etcd 检查不适用。在使用嵌入式 etcd 运行时，K3s 会为 etcd 生成证书和密钥文件。这些文件位于 /var/lib/rancher/k3s/server/tls/etcd/ 目录下。如果此检查失败，请确保配置文件 $etcdconf 没有被修改以使用自定义的证书和密钥文件。
         scored: false
 
       - id: 2.2
-        text: "Ensure that the --client-cert-auth argument is set to true (Automated)"
+        text: "确保 --client-cert-auth 参数设置为 true（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           test_items:
@@ -39,15 +34,12 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s sets the --client-cert-auth parameter to true.
-          If this check fails, ensure that the configuration file $etcdconf
-          has not been modified to disable client certificate authentication.
+        remediation: |-
+          如果在 sqlite 或者外部数据库上运行，则 etcd 检查不适用。当使用内置的 etcd 时，K3s 将 --client-cert-auth 参数设置为 true。如果此检查失败，请确保配置文件 $etcdconf 未被修改以禁用客户端证书身份验证。
         scored: false
 
       - id: 2.3
-        text: "Ensure that the --auto-tls argument is not set to true (Automated)"
+        text: "确保 --auto-tls 参数没有设置为 true（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           bin_op: or
@@ -58,17 +50,12 @@ groups:
                 value: false
             - path: "{.client-transport-security.auto-tls}"
               set: false
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s does not set the --auto-tls parameter.
-          If this check fails, edit the etcd pod specification file $etcdconf on the master
-          node and either remove the --auto-tls parameter or set it to false.
-          client-transport-security:
-            auto-tls: false
+        remediation: |-
+          如果在 sqlite 或外部数据库上运行，则 etcd 检查不适用。在使用内嵌的 etcd 时，K3s 不会设置 --auto-tls 参数。如果此检查失败，请编辑主节点上的 etcd pod 规范文件 $etcdconf，并删除 --auto-tls 参数或将其设置为 false。client-transport-security:  auto-tls: false
         scored: false
 
       - id: 2.4
-        text: "Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate (Automated)"
+        text: "确保将 --peer-cert-file 和 --peer-key-file 参数设置为适当的值（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           bin_op: and
@@ -81,16 +68,12 @@ groups:
               compare:
                 op: eq
                 value: "/var/lib/rancher/k3s/server/tls/etcd/peer-server-client.key"
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s generates peer cert and key files for etcd.
-          These are located in /var/lib/rancher/k3s/server/tls/etcd/.
-          If this check fails, ensure that the configuration file $etcdconf
-          has not been modified to use custom peer cert and key files.
+        remediation: |-
+          如果在使用 sqlite 或外部数据库运行时，etcd 检查为不适用。当使用嵌入式 etcd 运行时，K3s 为 etcd 生成对等证书和密钥文件。这些文件位于 /var/lib/rancher/k3s/server/tls/etcd/。如果此检查失败，请确保配置文件 $etcdconf 未被修改以使用自定义对等证书和密钥文件。
         scored: false
 
       - id: 2.5
-        text: "Ensure that the --peer-client-cert-auth argument is set to true (Automated)"
+        text: "确保将 --peer-client-cert-auth 参数设置为 true（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           test_items:
@@ -98,15 +81,12 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s sets the --peer-cert-auth parameter to true.
-          If this check fails, ensure that the configuration file $etcdconf
-          has not been modified to disable peer client certificate authentication.
+        remediation: |-
+          如果使用 sqlite 或外部数据库运行，则 etcd 检查为不适用。当使用内嵌的 etcd 运行时，K3s 将 --peer-cert-auth 参数设置为 true。如果此检查失败，请确保配置文件 $etcdconf 未被修改以禁用对等客户端证书身份验证。
         scored: false
 
       - id: 2.6
-        text: "Ensure that the --peer-auto-tls argument is not set to true (Automated)"
+        text: "确保 --peer-auto-tls 参数未设置为 true（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           bin_op: or
@@ -117,17 +97,12 @@ groups:
                 value: false
             - path: "{.peer-transport-security.auto-tls}"
               set: false
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s does not set the --peer-auto-tls parameter.
-          If this check fails, edit the etcd pod specification file $etcdconf on the master
-          node and either remove the --peer-auto-tls parameter or set it to false.
-          peer-transport-security:
-            auto-tls: false
+        remediation: |-
+          如果在使用 sqlite 或外部数据库运行时，则 etcd 检查为不适用。当使用内嵌的 etcd 运行时，K3s 不会设置 --peer-auto-tls 参数。如果此检查失败，请编辑主节点上的 etcd pod 规范文件 $etcdconf，并删除 --peer-auto-tls 参数或将其设置为 false。peer-transport-security:  auto-tls: false
         scored: false
 
       - id: 2.7
-        text: "Ensure that a unique Certificate Authority is used for etcd (Automated)"
+        text: "确保为 etcd 使用唯一的证书颁发机构（自动化）。"
         audit_config: "cat $etcdconf"
         tests:
           test_items:
@@ -135,10 +110,6 @@ groups:
               compare:
                 op: eq
                 value: "/var/lib/rancher/k3s/server/tls/etcd/peer-ca.crt"
-        remediation: |
-          If running on with sqlite or a external DB, etcd checks are Not Applicable.
-          When running with embedded-etcd, K3s generates a unique certificate authority for etcd.
-          This is located at /var/lib/rancher/k3s/server/tls/etcd/peer-ca.crt.
-          If this check fails, ensure that the configuration file $etcdconf
-          has not been modified to use a shared certificate authority.
+        remediation: |-
+          如果在使用 sqlite 或外部数据库时，etcd 检查为不适用。当使用内嵌 etcd 时，K3s 为 etcd 生成唯一的证书颁发机构。该证书位于 /var/lib/rancher/k3s/server/tls/etcd/peer-ca.crt。如果这个检查失败，请确保配置文件 $etcdconf 未被修改以使用共享证书颁发机构。
         scored: false

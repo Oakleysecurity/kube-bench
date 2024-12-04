@@ -1,144 +1,114 @@
----
 controls:
 version: "aks-1.0"
 id: 5
-text: "Managed Services"
+text: "托管服务"
 type: "managedservices"
 groups:
   - id: 5.1
-    text: "Image Registry and Image Scanning"
+    text: "镜像仓库和镜像扫描"
     checks:
       - id: 5.1.1
-        text: "Ensure Image Vulnerability Scanning using Azure Defender image scanning or a third party provider (Manual)"
+        text: "确保使用 Azure Defender 图像扫描或第三方提供商（手动方式）进行图像漏洞扫描。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
       - id: 5.1.2
-        text: "Minimize user access to Azure Container Registry (ACR) (Manual)"
+        text: "限制用户对 Azure 容器注册表（ACR）的访问权限（手动）。"
         type: "manual"
-        remediation: |
-          Azure Container Registry
-          If you use Azure Container Registry (ACR) as your container image store, you need to grant
-          permissions to the service principal for your AKS cluster to read and pull images. Currently,
-          the recommended configuration is to use the az aks create or az aks update command to
-          integrate with a registry and assign the appropriate role for the service principal. For
-          detailed steps, see Authenticate with Azure Container Registry from Azure Kubernetes
-          Service.
-          To avoid needing an Owner or Azure account administrator role, you can configure a
-          service principal manually or use an existing service principal to authenticate ACR from
-          AKS. For more information, see ACR authentication with service principals or Authenticate
-          from Kubernetes with a pull secret.
+        remediation: |-
+          如果您使用 Azure 容器注册表（ACR）作为容器镜像存储库，您需要授予 AKS 集群的服务主体读取和拉取镜像的权限。目前，推荐的配置是使用 az aks create 或 az aks update 命令与注册表集成，并为服务主体分配适当的角色。有关详细步骤，请参阅在 Azure Kubernetes 服务中使用 Azure 容器注册表进行身份验证。为避免需要拥有者或 Azure 账户管理员角色，您可以手动配置服务主体或使用现有服务主体从 AKS 对 ACR 进行身份验证。有关更多信息，请参阅使用服务主体进行 ACR 身份验证或使用拉取密钥从 Kubernetes 进行身份验证。
         scored: false
 
       - id: 5.1.3
-        text: "Minimize cluster access to read-only for Azure Container Registry (ACR) (Manual)"
+        text: "将 Azure 容器注册表（ACR）的集群访问权限最小化，仅设置为只读（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "未进行修复"
         scored: false
 
       - id: 5.1.4
-        text: "Minimize Container Registries to only those approved (Manual)"
+        text: "将容器注册表最小化到仅包含已批准的注册表（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
   - id: 5.2
-    text: "Access and identity options for Azure Kubernetes Service (AKS)"
+    text: "Azure Kubernetes Service (AKS) 的访问和身份验证选项"
     checks:
       - id: 5.2.1
-        text: "Prefer using dedicated AKS Service Accounts (Manual)"
+        text: "更倾向于使用专用的 AKS 服务账号（手动）。"
         type: "manual"
-        remediation: |
-          Azure Active Directory integration
-          The security of AKS clusters can be enhanced with the integration of Azure Active Directory
-          (AD). Built on decades of enterprise identity management, Azure AD is a multi-tenant,
-          cloud-based directory, and identity management service that combines core directory
-          services, application access management, and identity protection. With Azure AD, you can
-          integrate on-premises identities into AKS clusters to provide a single source for account
-          management and security.
-          Azure Active Directory integration with AKS clusters
-          With Azure AD-integrated AKS clusters, you can grant users or groups access to Kubernetes
-          resources within a namespace or across the cluster. To obtain a kubectl configuration
-          context, a user can run the az aks get-credentials command. When a user then interacts
-          with the AKS cluster with kubectl, they're prompted to sign in with their Azure AD
-          credentials. This approach provides a single source for user account management and
-          password credentials. The user can only access the resources as defined by the cluster
-          administrator.
-          Azure AD authentication is provided to AKS clusters with OpenID Connect. OpenID Connect
-          is an identity layer built on top of the OAuth 2.0 protocol. For more information on OpenID
-          Connect, see the Open ID connect documentation. From inside of the Kubernetes cluster,
-          Webhook Token Authentication is used to verify authentication tokens. Webhook token
-          authentication is configured and managed as part of the AKS cluster.
+        remediation: |-
+          Azure Active Directory 集成AKS 集群的安全性可以通过集成 Azure Active Directory (AD) 来增强。Azure AD 建立在数十年的企业身份管理基础之上，是一个多租户的基于云的目录和身份管理服务，结合了核心目录服务、应用访问管理和身份保护。使用 Azure AD，您可以将本地身份集成到 AKS 集群中，以提供账户管理和安全性的单一来源。与 AKS 集群集成 Azure Active Directory通过与 Azure AD 集成的 AKS 集群，您可以向用户或组授予对命名空间或整个集群中 Kubernetes 资源的访问权限。要获取 kubectl 配置上下文，用户可以运行 az aks get-credentials 命令。然后，当用户使用 kubectl 与 AKS 集群交互时，将提示他们使用 Azure AD 凭据登录。这种方法提供了用户帐户管理和密码凭证的单一来源。用户只能访问由集群管理员定义的资源。Azure AD 认证通过 OpenID Connect 提供给 AKS 集群。OpenID Connect 是建立在 OAuth 2.0 协议之上的身份层。有关 OpenID Connect 的更多信息，请参阅 Open ID 连接文档。在 Kubernetes 集群内部，Webhook Token Authentication 用于验证身份验证令牌。Webhook 令牌认证作为 AKS 集群的一部分进行配置和管理。
         scored: false
 
   - id: 5.3
-    text: "Key Management Service (KMS)"
+    text: "密钥管理服务（Key Management Service，KMS）"
     checks:
       - id: 5.3.1
-        text: "Ensure Kubernetes Secrets are encrypted (Manual)"
+        text: "确保 Kubernetes Secrets 被加密（手动）"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有补救措施。"
         scored: false
 
   - id: 5.4
-    text: "Cluster Networking"
+    text: "集群网络"
     checks:
       - id: 5.4.1
-        text: "Restrict Access to the Control Plane Endpoint (Manual)"
+        text: "限制对控制平面端点的访问（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施。"
         scored: false
 
       - id: 5.4.2
-        text: "Ensure clusters are created with Private Endpoint Enabled and Public Access Disabled (Manual)"
+        text: "确保使用私有端点启用并禁用公共访问（手动方式）创建集群。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
       - id: 5.4.3
-        text: "Ensure clusters are created with Private Nodes (Manual)"
+        text: "确保使用私有节点（手动）创建集群。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复。"
         scored: false
 
       - id: 5.4.4
-        text: "Ensure Network Policy is Enabled and set as appropriate (Manual)"
+        text: "确保网络策略已启用，并根据需要进行设置（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施"
         scored: false
 
       - id: 5.4.5
-        text: "Encrypt traffic to HTTPS load balancers with TLS certificates (Manual)"
+        text: "使用 TLS 证书加密流量到 HTTPS 负载均衡器（手动方式）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无修复措施。"
         scored: false
 
 
   - id: 5.5
-    text: "Authentication and Authorization"
+    text: "身份验证和授权"
     checks:
       - id: 5.5.1
-        text: "Manage Kubernetes RBAC users with Azure AD (Manual)"
+        text: "使用 Azure AD 管理 Kubernetes RBAC 用户（手动方式）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需补救。"
         scored: false
       - id: 5.5.2
-        text: "Use Azure RBAC for Kubernetes Authorization (Manual)"
+        text: "使用 Azure RBAC 进行 Kubernetes 授权（手动）。"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需修复。"
         scored: false
 
   - id: 5.6
-    text: "Other Cluster Configurations"
+    text: "其他集群配置"
     checks:
       - id: 5.6.1
-        text: "Restrict untrusted workloads (Manual)"
+        text: "限制不受信任的工作负载（手动）"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "没有修复措施"
         scored: false
       - id: 5.6.2
-        text: "Hostile multi-tenant workloads (Manual)"
+        text: "具有敌对性的多租户工作负载（手动）"
         type: "manual"
-        remediation: "No remediation"
+        remediation: "无需处理"
         scored: false

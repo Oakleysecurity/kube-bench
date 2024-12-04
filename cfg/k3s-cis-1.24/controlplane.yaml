@@ -1,46 +1,37 @@
----
 controls:
 version: "k3s-cis-1.24"
 id: 3
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 3.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 3.1.1
-        text: "Client certificate authentication should not be used for users (Manual)"
+        text: "不应该为用户使用客户端证书认证（手动）。"
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
-          implemented in place of client certificates.
+        remediation: |-
+          应该实施 Kubernetes 提供的替代机制，例如使用 OIDC，来替代客户端证书。
         scored: false
 
   - id: 3.2
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 3.2.1
-        text: "Ensure that a minimal audit policy is created (Automated)"
-        audit: "journalctl -m -u k3s | grep 'Running kube-apiserver' | tail -n1 | grep 'audit-policy-file'"
+        text: "确保创建一个最小化的审计策略（自动化）。"
+        audit: "journalctl -m -u k3s | grep 'Running kube-apiserver' | tail -n1 |
+          grep 'audit-policy-file'"
         tests:
           test_items:
             - flag: "--audit-policy-file"
               set: true
-        remediation: |
-          Create an audit policy file for your cluster.
+        remediation: |-
+          为您的集群创建一个审计策略文件。
         scored: false
 
       - id: 3.2.2
-        text: "Ensure that the audit policy covers key security concerns (Manual)"
+        text: "确保审计策略涵盖关键安全关注点（手动）"
         type: "manual"
-        remediation: |
-          Review the audit policy provided for the cluster and ensure that it covers
-          at least the following areas,
-          - Access to Secrets managed by the cluster. Care should be taken to only
-            log Metadata for requests to Secrets, ConfigMaps, and TokenReviews, in
-            order to avoid risk of logging sensitive data.
-          - Modification of Pod and Deployment objects.
-          - Use of `pods/exec`, `pods/portforward`, `pods/proxy` and `services/proxy`.
-          For most requests, minimally logging at the Metadata level is recommended
-          (the most basic level of logging).
+        remediation: |-
+          审查为集群提供的审计策略，并确保至少覆盖以下领域，- 访问集群管理的 Secrets。需要注意的是，只记录对 Secrets、ConfigMaps 和 TokenReviews 的请求的元数据，以避免记录敏感数据的风险。- 修改 Pod 和 Deployment 对象。- 使用 `pods/exec`、`pods/portforward`、`pods/proxy` 和 `services/proxy`。对于大多数请求，建议以最基本的元数据级别进行最少记录（记录最基本的日志级别）。
         scored: false

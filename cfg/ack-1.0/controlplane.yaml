@@ -1,39 +1,35 @@
----
 controls:
 version: "ack-1.0"
 id: 3
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 3.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 3.1.1
-        text: "Revoke client certificate when possible leakage (Manual)"
+        text: "在可能泄霩时注销客户端证书（手动）。"
         type: "manual"
-        remediation: |
-          Kubernetes provides the option to use client certificates for user authentication.
-          ACK issues kubeconfig with its client certificates as the user credentials for connecing to target cluster.
-          User should revoke his/her issued kubeconfig when possible leakage.
+        remediation: |-
+          Kubernetes 提供了使用客户端证书进行用户认证的选项。ACK 将其客户端证书作为用户凭据发放，并用于连接到目标集群。用户应在可能泄漏时注销其已发放的 kubeconfig。
         scored: false
 
   - id: 3.2
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 3.2.1
-        text: "Ensure that a minimal audit policy is created (Manual)"
+        text: "确保创建一个最小化的审计策略（手动）。"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
         tests:
           test_items:
             - flag: "--audit-policy-file"
-        remediation: |
-          Create an audit policy file for your cluster.
+        remediation: |-
+          为您的集群创建一个审计策略文件。
         scored: false
 
       - id: 3.2.2
-        text: "Ensure that the audit policy covers key security concerns (Manual)"
+        text: "确保审核策略涵盖关键的安全关注点（手动）。"
         type: "manual"
-        remediation: |
-          Consider modification of the audit policy in use on the cluster to include these items, at a
-          minimum.
+        remediation: |-
+          考虑修改集群中正在使用的审计策略，至少包括这些项目。
         scored: false

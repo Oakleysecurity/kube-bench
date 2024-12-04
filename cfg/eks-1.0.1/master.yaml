@@ -1,6 +1,5 @@
----
 controls:
 version: "eks-1.0.1"
 id: 1
-text: "Control Plane Components"
+text: "控制平面组件"
 type: "master"

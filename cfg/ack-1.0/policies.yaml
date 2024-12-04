@@ -1,239 +1,191 @@
----
 controls:
 version: "ack-1.0"
 id: 5
-text: "Kubernetes Policies"
+text: "Kubernetes 策略"
 type: "policies"
 groups:
   - id: 5.1
-    text: "RBAC and Service Accounts"
+    text: "RBAC 和服务账户"
     checks:
       - id: 5.1.1
-        text: "Ensure that the cluster-admin role is only used where required (Manual)"
+        text: "确保 cluster-admin 角色仅在必要时使用（手动）。"
         type: "manual"
-        remediation: |
-          Identify all clusterrolebindings to the cluster-admin role. Check if they are used and
-          if they need this role or if they could use a role with fewer privileges.
-          Where possible, first bind users to a lower privileged role and then remove the
-          clusterrolebinding to the cluster-admin role :
-          kubectl delete clusterrolebinding [name]
+        remediation: |-
+          识别所有绑定到 cluster-admin 角色的 clusterrolebindings。检查它们是否被使用，以及它们是否需要这个角色，或者它们是否可以使用权限更少的角色。在可能的情况下，先将用户绑定到一个权限较低的角色，然后再删除绑定到 cluster-admin 角色的 clusterrolebinding：kubectl delete clusterrolebinding [name]
         scored: false
 
       - id: 5.1.2
-        text: "Minimize access to secrets (Manual)"
+        text: "最小化对机密信息的访问（手动）。"
         type: "manual"
-        remediation: |
-          Where possible, remove get, list and watch access to secret objects in the cluster.
+        remediation: |-
+          在可能的情况下，移除集群中对秘密对象的 get、list 和 watch 访问权限。
         scored: false
 
       - id: 5.1.3
-        text: "Minimize wildcard use in Roles and ClusterRoles (Manual)"
+        text: "在角色（Roles）和集群角色（ClusterRoles）中尽量减少通配符的使用（手动）。"
         type: "manual"
-        remediation: |
-          Where possible replace any use of wildcards in clusterroles and roles with specific
-          objects or actions.
+        remediation: |-
+          在可能的情况下，将 clusterroles 和 roles 中对通配符的使用替换为特定的对象或操作。
         scored: false
 
       - id: 5.1.4
-        text: "Minimize access to create pods (Manual)"
+        text: "最小化创建 Pod 的访问权限（手动方式）。"
         type: "manual"
-        remediation: |
-          Where possible, remove create access to pod objects in the cluster.
+        remediation: |-
+          在可能的情况下，删除集群中对 Pod 对象的创建访问权限。
         scored: false
 
       - id: 5.1.5
-        text: "Ensure that default service accounts are not actively used. (Manual)"
+        text: "确保默认服务账户未被激活使用。(手动)"
         type: "manual"
-        remediation: |
-          Create explicit service accounts wherever a Kubernetes workload requires specific access
-          to the Kubernetes API server.
-          Modify the configuration of each default service account to include this value
-          automountServiceAccountToken: false
+        remediation: |-
+          在 Kubernetes workload 需要特定访问权限时，请创建明确的服务账户。修改每个默认服务账户的配置，包括以下数值automountServiceAccountToken: false
         scored: false
 
       - id: 5.1.6
-        text: "Ensure that Service Account Tokens are only mounted where necessary (Manual)"
+        text: "确保只在必要的情况下挂载服务账号令牌（手动方式）。"
         type: "manual"
-        remediation: |
-          Modify the definition of pods and service accounts which do not need to mount service
-          account tokens to disable it.
+        remediation: |-
+          修改不需要挂载服务账户令牌的 Pod 和服务账户的定义，禁用该功能。
         scored: false
 
   - id: 5.2
-    text: "Pod Security Policies"
+    text: "Pod 安全策略"
     checks:
       - id: 5.2.1
-        text: "Minimize the admission of privileged containers (Manual)"
+        text: "最小化特权容器的准入（手动）"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that
-          the .spec.privileged field is omitted or set to false.
+        remediation: |-
+          按照 Kubernetes 文档中的描述创建一个 PodSecurityPolicy（PSP），确保 .spec.privileged 字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.2
-        text: "Minimize the admission of containers wishing to share the host process ID namespace (Manual)"
+        text: "最小化容器希望共享主机进程 ID 命名空间的准入（手动）。"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that the
-          .spec.hostPID field is omitted or set to false.
+        remediation: |-
+          按照 Kubernetes 文档中的描述创建一个 PSP，确保 .spec.hostPID 字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.3
-        text: "Minimize the admission of containers wishing to share the host IPC namespace (Manual)"
+        text: "减少希望共享主机 IPC 命名空间的容器的准入（手动）"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that the
-          .spec.hostIPC field is omitted or set to false.
+        remediation: |-
+          按照 Kubernetes 文档中的描述创建一个 PSP，确保 .spec.hostIPC 字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.4
-        text: "Minimize the admission of containers wishing to share the host network namespace (Manual)"
+        text: "减少希望共享主机网络命名空间的容器的准入（手动操作）。"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that the
-          .spec.hostNetwork field is omitted or set to false.
+        remediation: |-
+          根据 Kubernetes 文档中的描述创建一个 PSP，并确保 .spec.hostNetwork 字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.5
-        text: "Minimize the admission of containers with allowPrivilegeEscalation (Manual)"
+        text: "最小化具有 allowPrivilegeEscalation 权限提升功能的容器接纳（手动）。"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that the
-          .spec.allowPrivilegeEscalation field is omitted or set to false.
+        remediation: |-
+          按照 Kubernetes 文档中的描述创建一个 PSP，确保 .spec.allowPrivilegeEscalation 字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.6
-        text: "Minimize the admission of root containers (Manual)"
+        text: "尽量减少 root 容器的准入（手动方式）。"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that the
-          .spec.runAsUser.rule is set to either MustRunAsNonRoot or MustRunAs with the range of
-          UIDs not including 0.
+        remediation: |-
+          按照 Kubernetes 文档中的描述创建一个 PSP，确保 .spec.runAsUser.rule 设置为 MustRunAsNonRoot 或 MustRunAs，并且UID范围不包括0。
         scored: false
 
       - id: 5.2.7
-        text: "Minimize the admission of containers with the NET_RAW capability (Manual)"
+        text: "最小化具有 NET_RAW 能力的容器的准入（手动）"
         type: "manual"
-        remediation: |
-          Create a PSP as described in the Kubernetes documentation, ensuring that the
-          .spec.requiredDropCapabilities is set to include either NET_RAW or ALL.
+        remediation: |-
+          按照 Kubernetes 文档中描述的方式创建一个 PSP，并确保 .spec.requiredDropCapabilities 被设置为包含 NET_RAW 或 ALL。
         scored: false
 
       - id: 5.2.8
-        text: "Minimize the admission of containers with added capabilities (Manual)"
+        text: "最小化具有附加权限的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Ensure that allowedCapabilities is not present in PSPs for the cluster unless
-          it is set to an empty array.
+        remediation: |-
+          确保集群中的 PSPs 中不包含 allowedCapabilities，除非将其设置为空数组。
         scored: false
 
       - id: 5.2.9
-        text: "Minimize the admission of containers with capabilities assigned (Manual)"
+        text: "降低具有分配权限的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Review the use of capabilites in applications runnning on your cluster. Where a namespace
-          contains applicaions which do not require any Linux capabities to operate consider adding
-          a PSP which forbids the admission of containers which do not drop all capabilities.
+        remediation: |-
+          审查在集群上运行的应用程序中使用 capabilites 的情况。如果一个命名空间中包含不需要任何 Linux capabilites 来运行的应用程序，请考虑添加一个 PSP，禁止允许那些不放弃所有 capabilites 的容器进入。
         scored: false
 
   - id: 5.3
-    text: "Network Policies and CNI"
+    text: "网络策略和CNI"
     checks:
       - id: 5.3.1
-        text: "Ensure that the CNI in use supports Network Policies (Manual)"
+        text: "确保所使用的 CNI 支持网络策略（手动）。"
         type: "manual"
-        remediation: |
-          If the CNI plugin in use does not support network policies, consideration should be given to
-          making use of a different plugin, or finding an alternate mechanism for restricting traffic
-          in the Kubernetes cluster.
+        remediation: |-
+          如果正在使用的 CNI 插件不支持网络策略，应考虑使用不同的插件，或者找到另一种限制 Kubernetes 集群中流量的替代机制。
         scored: false
 
       - id: 5.3.2
-        text: "Ensure that all Namespaces have Network Policies defined (Manual)"
+        text: "确保所有命名空间都已定义网络策略（手动）。"
         type: "manual"
-        remediation: |
-          Follow the documentation and create NetworkPolicy objects as you need them.
+        remediation: |-
+          按照文档的指导创建 NetworkPolicy 对象，根据需要进行操作。
         scored: false
 
   - id: 5.4
-    text: "Secrets Management"
+    text: "机密管理"
     checks:
       - id: 5.4.1
-        text: "Prefer using secrets as files over secrets as environment variables (Manual)"
+        text: "首选将 Secrets 作为文件而不是环境变量使用（手动方式）。"
         type: "manual"
-        remediation: |
-          if possible, rewrite application code to read secrets from mounted secret files, rather than
-          from environment variables.
+        remediation: |-
+          如果可能的话，重写应用程序代码，从挂载的秘钥文件中读取秘钥，而不是从环境变量中读取。
         scored: false
 
       - id: 5.4.2
-        text: "Consider external secret storage (Manual)"
+        text: "考虑外部的秘钥存储（手动）。"
         type: "manual"
-        remediation: |
-          Refer to the secrets management options offered by your cloud provider or a third-party
-          secrets management solution.
+        remediation: |-
+          请参考您的云服务提供商或第三方机密管理解决方案提供的机密管理选项。
         scored: false
 
   - id: 5.5
-    text: "Extensible Admission Control"
+    text: "可扩展的准入控制"
     checks:
       - id: 5.5.1
-        text: "Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)"
+        text: "使用 ImagePolicyWebhook 出入控制器（手动方式）配置镜像来源验证。"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and setup image provenance.
+        remediation: |-
+          按照 Kubernetes 文档的指引设置镜像溯源。
         scored: false
 
   - id: 5.6
-    text: "General Policies"
+    text: "通用政策"
     checks:
       - id: 5.6.1
-        text: "Create administrative boundaries between resources using namespaces (Manual)"
+        text: "使用命名空间（手动方式）在资源之间创建管理边界。"
         type: "manual"
-        remediation: |
-          Follow the documentation and create namespaces for objects in your deployment as you need
-          them.
+        remediation: |-
+          根据文档创建命名空间，用于部署所需的对象。
         scored: false
 
       - id: 5.6.2
-        text: "Ensure that the seccomp profile is set to docker/default in your pod definitions (Manual)"
+        text: "确保在您的 pod 定义中将 seccomp profile 设置为 docker/default（手动设置）。"
         type: "manual"
-        remediation: |
-          Seccomp is an alpha feature currently. By default, all alpha features are disabled. So, you
-          would need to enable alpha features in the apiserver by passing "--feature-
-          gates=AllAlpha=true" argument.
-          Edit the /etc/kubernetes/apiserver file on the master node and set the KUBE_API_ARGS
-          parameter to "--feature-gates=AllAlpha=true"
-          KUBE_API_ARGS="--feature-gates=AllAlpha=true"
-          Based on your system, restart the kube-apiserver service. For example:
-          systemctl restart kube-apiserver.service
-          Use annotations to enable the docker/default seccomp profile in your pod definitions. An
-          example is as below:
-          apiVersion: v1
-          kind: Pod
-          metadata:
-            name: trustworthy-pod
-            annotations:
-              seccomp.security.alpha.kubernetes.io/pod: docker/default
-          spec:
-            containers:
-              - name: trustworthy-container
-                image: sotrustworthy:latest
+        remediation: |-
+          Seccomp目前是一个alpha功能。默认情况下，所有alpha功能都是禁用的。因此，您需要通过传递“--feature-gates=AllAlpha=true”参数来在apiserver中启用alpha功能。编辑主节点上的 /etc/kubernetes/apiserver 文件，并将 KUBE_API_ARGS 参数设置为 "--feature-gates=AllAlpha=true" KUBE_API_ARGS="--feature-gates=AllAlpha=true"根据您的系统，重新启动 kube-apiserver 服务。例如：systemctl restart kube-apiserver.service使用注释来在您的 pod 定义中启用 docker/default 的 seccomp 配置文件。示例如下：apiVersion: v1kind: Podmetadata:  name: trustworthy-pod  annotations:    seccomp.security.alpha.kubernetes.io/pod: docker/defaultspec:  containers:    - name: trustworthy-container      image: sotrustworthy:latest
         scored: false
 
       - id: 5.6.3
-        text: "Apply Security Context to Your Pods and Containers (Manual)"
+        text: "将安全上下文应用于您的 Pod 和容器（手动）。"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and apply security contexts to your pods. For a
-          suggested list of security contexts, you may refer to the CIS Security Benchmark for Docker
-          Containers.
+        remediation: |-
+          请按照 Kubernetes 文档的指导，为您的 Pod 应用安全上下文。如果需要建议的安全上下文列表，您可以参考 Docker 容器的 CIS 安全基准。
         scored: false
 
       - id: 5.6.4
-        text: "The default namespace should not be used (Manual)"
+        text: "不应该使用默认命名空间（手动操作）。"
         type: "manual"
-        remediation: |
-          Ensure that namespaces are created to allow for appropriate segregation of Kubernetes
-          resources and that all new resources are created in a specific namespace.
+        remediation: |-
+          确保创建命名空间以允许对 Kubernetes 资源进行适当的隔离，并确保所有新资源都在特定命名空间中创建。
         scored: false

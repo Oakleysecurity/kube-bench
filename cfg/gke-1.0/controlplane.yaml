@@ -1,33 +1,29 @@
----
 controls:
 version: "gke-1.0"
 id: 3
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 3.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 3.1.1
-        text: "Client certificate authentication should not be used for users (Not Scored)"
+        text: "不应该为用户使用客户端证书认证（未评分）。"
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
-          implemented in place of client certificates.
-          You can remediate the availability of client certificates in your GKE cluster. See
-          Recommendation 6.8.2.
+        remediation: |-
+          应当在 Kubernetes 提供的替代机制中，比如使用 OIDC，来取代客户端证书。您可以纠正 GKE 集群中客户端证书的可用性。请查看推荐项 6.8.2。
         scored: false
 
   - id: 3.2
-    text: "Logging"
+    text: "日志记录"
     type: skip
     checks:
       - id: 3.2.1
-        text: "Ensure that a minimal audit policy is created (Not Scored)"
-        remediation: "This control cannot be modified in GKE."
+        text: "确保创建一个最小化的审计策略（未评分）。"
+        remediation: "在 GKE 中无法修改此控件。"
         scored: false
 
       - id: 3.2.2
-        text: "Ensure that the audit policy covers key security concerns (Not Scored) "
-        remediation: "This control cannot be modified in GKE."
+        text: "确保审计策略涵盖关键的安全关注点 (未评分)"
+        remediation: "在 GKE 中无法修改此控件。"
         scored: false

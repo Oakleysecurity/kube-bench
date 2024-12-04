@@ -1,15 +1,14 @@
----
 controls:
 version: rh-1.0
 id: 5
-text: "Kubernetes Policies"
+text: "Kubernetes策略"
 type: "policies"
 groups:
   - id: 5.1
-    text: "RBAC and Service Accounts"
+    text: "RBAC和服务账户"
     checks:
       - id: 5.1.1
-        text: "Ensure that the cluster-admin role is only used where required (Manual)"
+        text: "确保只在必要时使用 cluster-admin 角色（手动）。"
         type: "manual"
         audit: |
           #To get a list of users and service accounts with the cluster-admin role
@@ -17,23 +16,19 @@ groups:
           grep cluster-admin
           #To verity that kbueadmin is removed, no results should be returned
           oc get secrets kubeadmin -n kube-system
-        remediation: |
-          Identify all clusterrolebindings to the cluster-admin role. Check if they are used and
-          if they need this role or if they could use a role with fewer privileges.
-          Where possible, first bind users to a lower privileged role and then remove the
-          clusterrolebinding to the cluster-admin role :
-          kubectl delete clusterrolebinding [name]
+        remediation: |-
+          识别所有绑定到 cluster-admin 角色的 clusterrolebindings。检查它们是否被使用，以及它们是否需要该角色，或者能否使用权限更少的角色。在可能的情况下，首先将用户绑定到一个权限更低的角色，然后移除绑定到 cluster-admin 角色的 clusterrolebinding：kubectl delete clusterrolebinding [name]
         scored: false
 
       - id: 5.1.2
-        text: "Minimize access to secrets (Manual)"
+        text: "最小化对机密信息的访问（手动）"
         type: "manual"
-        remediation: |
-          Where possible, remove get, list and watch access to secret objects in the cluster.
+        remediation: |-
+          在可能的情况下，在集群中去除对 secret 对象的 get、list 和 watch 访问权限。
         scored: false
 
       - id: 5.1.3
-        text: "Minimize wildcard use in Roles and ClusterRoles (Manual)"
+        text: "在角色和集群角色中尽量减少通配符的使用（手动）。"
         type: "manual"
         audit: |
           #needs verification
@@ -44,99 +39,92 @@ groups:
           oc get clusterroles -o yaml
           for i in $(oc get clusterroles -o jsonpath='{.items[*].metadata.name}'); do
           oc describe clusterrole ${i}; done
-        remediation: |
-          Where possible replace any use of wildcards in clusterroles and roles with specific
-          objects or actions.
+        remediation: |-
+          在可能的情况下，将集群角色和角色中对通配符的使用替换为具体的对象或操作。
         scored: false
 
       - id: 5.1.4
-        text: "Minimize access to create pods (Manual)"
+        text: "减少创建 Pod 的权限（手动方式）。"
         type: "manual"
-        remediation: |
-          Where possible, remove create access to pod objects in the cluster.
+        remediation: |-
+          在可能的情况下，在集群中删除对 Pod 对象的创建访问权限。
         scored: false
 
       - id: 5.1.5
-        text: "Ensure that default service accounts are not actively used. (Manual)"
+        text: "确保默认服务账户没有被积极使用。（手动）"
         type: "manual"
-        remediation: |
-          None required.
+        remediation: |-
+          无需设置。
         scored: false
 
       - id: 5.1.6
-        text: "Ensure that Service Account Tokens are only mounted where necessary (Manual)"
+        text: "确保只在必要的情况下挂载 Service Account Tokens（手动）。"
         type: "manual"
-        remediation: |
-          Modify the definition of pods and service accounts which do not need to mount service
-          account tokens to disable it.
+        remediation: |-
+          修改不需要挂载服务账号令牌的 Pod 和服务账号的定义，禁用该功能。
         scored: false
 
   - id: 5.2
-    text: "Pod Security Policies"
+    text: "Pod 安全策略"
     checks:
       - id: 5.2.1
-        text: "Minimize the admission of privileged containers (Manual)"
+        text: "最小化特权容器的准入（手动方式）"
         audit: |
           # needs verification
           oc get scc -o=custom-columns=NAME:.metadata.name,allowPrivilegedContainer:.allowPrivilegedContainer
         tests:
           test_items:
             - flag: "false"
-        remediation: |
-          Create a SCC as described in the OpenShift documentation, ensuring that the Allow
-          Privileged field is set to false.
+        remediation: |-
+          按照 OpenShift 文档中的描述创建一个 SCC，确保将 Allow Privileged 字段设置为 false。
         scored: false
 
       - id: 5.2.2
-        text: "Minimize the admission of containers wishing to share the host process ID namespace (Manual)"
+        text: "尽量减少容器请求共享主机进程ID命名空间的准入（手动）。"
         audit: |
           oc get scc -o=custom-columns=NAME:.metadata.name,allowHostPID:.allowHostPID
         tests:
           test_items:
             - flag: "false"
-        remediation: |
-          Create a SCC as described in the OpenShift documentation, ensuring that the Allow Host
-          PID field is set to false.
+        remediation: |-
+          根据 OpenShift 文档的描述创建一个 SCC，确保将 Allow Host PID 字段设置为 false。
         scored: false
 
       - id: 5.2.3
-        text: "Minimize the admission of containers wishing to share the host IPC namespace (Manual)"
+        text: "减少希望共享主机 IPC 命名空间的容器的准入（手动操作）。"
         audit: |
           oc get scc -o=custom-columns=NAME:.metadata.name,allowHostIPC:.allowHostIPC
         tests:
           test_items:
             - flag: "false"
-        remediation: |
-          Create a SCC as described in the OpenShift documentation, ensuring that the Allow Host
-          IPC field is set to false.
+        remediation: |-
+          根据 OpenShift 文档中的描述创建一个 SCC，确保 Allow Host IPC 字段设置为 false。
         scored: false
 
       - id: 5.2.4
-        text: "Minimize the admission of containers wishing to share the host network namespace (Manual)"
+        text: "限制容器共享主机网络命名空间的准入（手动）"
         audit: |
           oc get scc -o=custom-columns=NAME:.metadata.name,allowHostNetwork:.allowHostNetwork
         tests:
           test_items:
             - flag: "false"
-        remediation: |
-          Create a SCC as described in the OpenShift documentation, ensuring that the Allow Host
-          Network field is omitted or set to false.
+        remediation: |-
+          按照 OpenShift 文档中的描述创建一个 SCC，确保“Allow Host Network”字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.5
-        text: "Minimize the admission of containers with allowPrivilegeEscalation (Manual)"
+        text: "最小化允许具有 allowPrivilegeEscalation 的容器进入（手动）。"
         audit: |
           oc get scc -o=custom-columns=NAME:.metadata.name,allowPrivilegeEscalation:.allowPrivilegeEscalation
         tests:
           test_items:
             - flag: "false"
-        remediation: |
-          Create a SCC as described in the OpenShift documentation, ensuring that the Allow
-          Privilege Escalation field is omitted or set to false.
+        remediation: |-
+          按照 OpenShift 文档中的描述创建一个 SCC，确保 "Allow Privilege Escalation" 字段被省略或设置为 false。
         scored: false
 
       - id: 5.2.6
-        text: "Minimize the admission of root containers (Manual)"
+        text: "减少根容器的准入（手动方式）"
         audit: |
           # needs verification # | awk 'NR>1 {gsub("map\\[type:", "", $2); gsub("\\]$", "", $2); print $1 ":" $2}'
           oc get scc -o=custom-columns=NAME:.metadata.name,runAsUser:.runAsUser.type
@@ -150,14 +138,12 @@ groups:
               compare:
                 op: nothave
                 value: 0
-        remediation: |
-          None required. By default, OpenShift includes the non-root SCC with the the Run As User
-          Strategy is set to either MustRunAsNonRoot. If additional SCCs are appropriate, follow the
-          OpenShift documentation to create custom SCCs.
+        remediation: |-
+          默认情况下，OpenShift 包含了非 root SCC，并且 Run As User 策略设置为 MustRunAsNonRoot。如果需要额外的 SCC，请按照 OpenShift 文档创建自定义 SCC。
         scored: false
 
       - id: 5.2.7
-        text: "Minimize the admission of containers with the NET_RAW capability (Manual)"
+        text: "减少具有 NET_RAW 能力的容器的准入（手动）。"
         audit: |
           # needs verification
           oc get scc -o=custom-columns=NAME:.metadata.name,requiredDropCapabilities:.requiredDropCapabilities
@@ -166,122 +152,111 @@ groups:
           test_items:
             - flag: "ALL"
             - flag: "NET_RAW"
-        remediation: |
-          Create a SCC as described in the OpenShift documentation, ensuring that the Required
-          Drop Capabilities is set to include either NET_RAW or ALL.
+        remediation: |-
+          根据 OpenShift 文档中的描述创建一个 SCC，确保 Required Drop Capabilities 被设置为包括 NET_RAW 或 ALL。
         scored: false
 
       - id: 5.2.8
-        text: "Minimize the admission of containers with added capabilities (Manual)"
+        text: "最小化具有附加功能的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          Ensure that Allowed Capabilities is set to an empty array for every SCC in the cluster
-          except for the privileged SCC.
+        remediation: |-
+          确保集群中每个 SCC 的 Allowed Capabilities 都设置为一个空数组，除了特权 SCC。
         scored: false
 
       - id: 5.2.9
-        text: "Minimize the admission of containers with capabilities assigned (Manual)"
+        text: "尽量减少分配容器特权的准入（手动）。"
         type: "manual"
-        remediation: |
-          Review the use of capabilites in applications running on your cluster. Where a namespace
-          contains applicaions which do not require any Linux capabities to operate consider
-          adding a SCC which forbids the admission of containers which do not drop all capabilities.
+        remediation: |-
+          审查在集群上运行的应用程序中 capabilites 的使用。对于一个命名空间包含不需要任何 Linux 权限的应用程序的情况，考虑添加一个 SCC，该 SCC 禁止接受未丢弃所有权限的容器。
         scored: false
 
   - id: 5.3
-    text: "Network Policies and CNI"
+    text: "网络策略和CNI"
     checks:
       - id: 5.3.1
-        text: "Ensure that the CNI in use supports Network Policies (Manual)"
+        text: "确保正在使用的 CNI 支持网络策略（手动）。"
         type: "manual"
-        remediation: |
-          None required.
+        remediation: |-
+          不需要。
         scored: false
 
       - id: 5.3.2
-        text: "Ensure that all Namespaces have Network Policies defined (Manual)"
+        text: "确保所有命名空间都定义了网络策略（手动设置）。"
         type: "manual"
         audit: |
           #Run the following command and review the NetworkPolicy objects created in the cluster.
           oc -n all get networkpolicy
-        remediation: |
-          Follow the documentation and create NetworkPolicy objects as you need them.
+        remediation: |-
+          根据文档的指引创建所需的 NetworkPolicy 对象。
         scored: false
 
   - id: 5.4
-    text: "Secrets Management"
+    text: "密钥管理"
     checks:
       - id: 5.4.1
-        text: "Prefer using secrets as files over secrets as environment variables (Manual)"
+        text: "更倾向于将 secrets 作为文件而不是作为环境变量来使用（手动方式）。"
         type: "manual"
         audit: |
           #Run the following command to find references to objects which use environment variables defined from secrets.
           oc get all -o jsonpath='{range .items[?(@..secretKeyRef)]} {.kind}
           {.metadata.name} {"\n"}{end}' -A
-        remediation: |
-          If possible, rewrite application code to read secrets from mounted secret files, rather than
-          from environment variables.
+        remediation: |-
+          如果可能的话，重新编写应用代码，从挂载的机密文件中读取机密，而不是从环境变量中读取。
         scored: false
 
       - id: 5.4.2
-        text: "Consider external secret storage (Manual)"
+        text: "考虑使用外部的密钥存储（手动）。"
         type: "manual"
-        remediation: |
-          Refer to the secrets management options offered by your cloud provider or a third-party
-          secrets management solution.
+        remediation: |-
+          请参考您的云服务提供商或第三方机密管理解决方案提供的机密管理选项。
         scored: false
 
   - id: 5.5
-    text: "Extensible Admission Control"
+    text: "可扩展的准入控制"
     checks:
       - id: 5.5.1
-        text: "Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)"
+        text: "使用 ImagePolicyWebhook 准入控制器（手动）配置镜像来源。"
         type: "manual"
-        remediation: |
-          Follow the OpenShift documentation: [Image configuration resources](https://docs.openshift.com/container-platform/4.5/openshift_images/image-configuration.html
+        remediation: |-
+          请查看 OpenShift 文档：[镜像配置资源](https://docs.openshift.com/container-platform/4.5/openshift_images/image-configuration.html)。
         scored: false
 
   - id: 5.7
-    text: "General Policies"
+    text: "一般策略"
     checks:
       - id: 5.7.1
-        text: "Create administrative boundaries between resources using namespaces (Manual)"
+        text: "使用命名空间（手动方式）在资源之间创建管理边界。"
         type: "manual"
         audit: |
           #Run the following command and review the namespaces created in the cluster.
           oc get namespaces
           #Ensure that these namespaces are the ones you need and are adequately administered as per your requirements.
-        remediation: |
-          Follow the documentation and create namespaces for objects in your deployment as you need
-          them.
+        remediation: |-
+          按照文档的指引，根据部署需要为对象创建命名空间。
         scored: false
 
       - id: 5.7.2
-        text: "Ensure that the seccomp profile is set to docker/default in your pod definitions (Manual)"
+        text: "确保在您的 Pod 定义中将 seccomp 配置为 docker/default（手动）。"
         type: "manual"
-        remediation: |
-          To enable the default seccomp profile, use the reserved value /runtime/default that will
-          make sure that the pod uses the default policy available on the host.
+        remediation: |-
+          要启用默认的 seccomp 配置文件，请使用预留值 /runtime/default，这将确保 pod 使用主机上可用的默认策略。
         scored: false
 
       - id: 5.7.3
-        text: "Apply Security Context to Your Pods and Containers (Manual)"
+        text: "为您的 Pod 和容器应用安全上下文（手动设置）。"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and apply security contexts to your pods. For a
-          suggested list of security contexts, you may refer to the CIS Security Benchmark for Docker
-          Containers.
+        remediation: |-
+          按照 Kubernetes 文档的指导，为您的 Pod 应用安全上下文。您可以参考 CIS Docker 容器安全基准提供的安全上下文建议列表。
         scored: false
 
       - id: 5.7.4
-        text: "The default namespace should not be used (Manual)"
+        text: "不应该使用默认命名空间（手动操作）。"
         type: "manual"
         audit: |
           #Run this command to list objects in default namespace
           oc project default
           oc get all
           #The only entries there should be system managed resources such as the kubernetes and openshift service
-        remediation: |
-          Ensure that namespaces are created to allow for appropriate segregation of Kubernetes
-          resources and that all new resources are created in a specific namespace.
+        remediation: |-
+          确保创建命名空间以允许对 Kubernetes 资源进行适当隔离，并确保所有新资源都创建在特定的命名空间中。
         scored: false

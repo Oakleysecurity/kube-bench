@@ -1,260 +1,192 @@
----
 controls:
 version: "cis-1.6-k3s"
 id: 5
-text: "Kubernetes Policies"
+text: "Kubernetes 策略"
 type: "policies"
 groups:
   - id: 5.1
-    text: "RBAC and Service Accounts"
+    text: "RBAC（Role-Based Access Control）和服务账号"
     checks:
       - id: 5.1.1
-        text: "Ensure that the cluster-admin role is only used where required (Manual)"
+        text: "确保仅在必要时使用 cluster-admin 角色（手动）。"
         type: "manual"
-        remediation: |
-          Identify all clusterrolebindings to the cluster-admin role. Check if they are used and
-          if they need this role or if they could use a role with fewer privileges.
-          Where possible, first bind users to a lower privileged role and then remove the
-          clusterrolebinding to the cluster-admin role :
-          kubectl delete clusterrolebinding [name]
+        remediation: |-
+          识别所有绑定到 cluster-admin 角色的 clusterrolebinding。检查它们是否被使用，以及它们是否需要此角色，或者是否可以使用权限更少的角色。在可能的情况下，首先将用户绑定到较低权限的角色，然后删除与 cluster-admin 角色相关的 clusterrolebinding：kubectl delete clusterrolebinding [name]。
         scored: false
 
       - id: 5.1.2
-        text: "Minimize access to secrets (Manual)"
+        text: "尽量减少对机密信息的访问（手动）。"
         type: "manual"
-        remediation: |
-          Where possible, remove get, list and watch access to secret objects in the cluster.
+        remediation: |-
+          在可能的情况下，移除对集群中秘钥对象的get、list和watch访问权限。
         scored: false
 
       - id: 5.1.3
-        text: "Minimize wildcard use in Roles and ClusterRoles (Manual)"
+        text: "减少在角色（Roles）和集群角色（ClusterRoles）中使用通配符（wildcard）（手动）。"
         type: "manual"
-        remediation: |
-          Where possible replace any use of wildcards in clusterroles and roles with specific
-          objects or actions.
-          kubectl get roles --all-namespaces -o yaml
-          kubectl get clusterroles -o yaml
+        remediation: |-
+          在可能的情况下，将 clusterroles 和 roles 中对通配符的使用替换为特定的对象或操作。```bashkubectl get roles --all-namespaces -o yamlkubectl get clusterroles -o yaml```
         scored: false
 
       - id: 5.1.4
-        text: "Minimize access to create pods (Manual)"
+        text: "限制创建 Pod 的访问权限（手动方式）。"
         type: "manual"
-        remediation: |
-          Where possible, remove create access to pod objects in the cluster.
+        remediation: |-
+          在可能的情况下，移除集群中对 Pod 对象的创建权限。
         scored: false
 
       - id: 5.1.5
-        text: "Ensure that default service accounts are not actively used. (Manual)"
+        text: "确保默认服务账号没有被激活使用。（手动）"
         type: "manual"
-        remediation: |
-          Create explicit service accounts wherever a Kubernetes workload requires specific access
-          to the Kubernetes API server.
-          Modify the configuration of each default service account to include this value
-          automountServiceAccountToken: false
+        remediation: |-
+          在 Kubernetes 工作负载需要对 Kubernetes API 服务器进行特定访问时，请创建明确的服务账号。修改每个默认服务账号的配置，包括此值 automountServiceAccountToken: false。
         scored: false
 
       - id: 5.1.6
-        text: "Ensure that Service Account Tokens are only mounted where necessary (Manual)"
+        text: "确保只在必要时挂载服务账号令牌（手动）。"
         type: "manual"
-        remediation: |
-          Modify the definition of pods and service accounts which do not need to mount service
-          account tokens to disable it.
+        remediation: |-
+          修改不需要挂载服务账户令牌的 Pod 和服务账户的定义，以禁用该功能。
         scored: false
 
   - id: 5.2
-    text: "Pod Security Policies"
+    text: "Pod 安全策略"
     checks:
       - id: 5.2.1
-        text: "Minimize the admission of privileged containers (Manual)"
+        text: "减少特权容器的准入（手动方式）"
         type: "manual"
-        remediation: |
-          kubectl describe psp <psp_name> | grep MustRunAsNonRoot
-          An operator should apply a PodSecurityPolicy that sets the Rule value to MustRunAsNonRoot. An example of this can be found in the Hardening Guide
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl describe psp <psp_name> | grep MustRunAsNonRoot操作员应该应用一个 PodSecurityPolicy，将 Rule 值设置为 MustRunAsNonRoot。可以在《加固指南》中找到此类示例https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.2
-        text: "Minimize the admission of containers wishing to share the host process ID namespace (Manual)"
+        text: "减少试图共享主机进程 ID 命名空间的容器的准入（手动方式）。"
         type: "manual"
-        remediation: |
-          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.hostPID == null) or (.spec.hostPID == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'
-          An operator should apply a PodSecurityPolicy that sets the hostPID value to false explicitly for the PSP it creates. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          运行以下命令将返回一个数字，该数字表示未明确将 hostPID 值设置为 false 的 PodSecurityPolicy 的数量：```shellkubectl get psp -o json | jq .items[] | jq -r 'select((.spec.hostPID == null) or (.spec.hostPID == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'```有关为其创建的 PodSecurityPolicy 明确将 hostPID 值设置为 false 的示例，可以在加固指南中找到：[Hardening Guide](https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index)
         scored: false
 
       - id: 5.2.3
-        text: "Minimize the admission of containers wishing to share the host IPC namespace (Manual)"
+        text: "减少希望共享主机 IPC 命名空间的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.hostIPC == null) or (.spec.hostIPC == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'
-          An operator should apply a PodSecurityPolicy that sets the HostIPC value to false explicitly for the PSP it creates. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.hostIPC == null) or (.spec.hostIPC == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'操作员应为其创建的 PSP 应用一项 PodSecurityPolicy，明确将 HostIPC 值设置为 false。可以在《Hardening Guide》中找到相关示例。链接：https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.4
-        text: "Minimize the admission of containers wishing to share the host network namespace (Manual)"
+        text: "减少希望共享主机网络命名空间的容器的准入（手动）"
         type: "manual"
-        remediation: |
-          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.hostNetwork == null) or (.spec.hostNetwork == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'
-          An operator should apply a PodSecurityPolicy that sets the HostNetwork value to false explicitly for the PSP it creates. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          一个操作者应该应用一个 PodSecurityPolicy，明确地将 HostNetwork 值设置为 false，为其创建的 PSP。这一操作的示例可以在《Hardening Guide》中找到。https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.5
-        text: "Minimize the admission of containers with allowPrivilegeEscalation (Manual)"
+        text: "减少具有 allowPrivilegeEscalation（手动）权限的容器准入。"
         type: "manual"
-        remediation: |
-          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.allowPrivilegeEscalation == null) or (.spec.allowPrivilegeEscalation == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'
-          An operator should apply a PodSecurityPolicy that sets the allowPrivilegeEscalation value to false explicitly for the PSP it creates. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.allowPrivilegeEscalation == null) or (.spec.allowPrivilegeEscalation == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'应该应用一个 PodSecurityPolicy 运算符，为其创建的 PSP 明确设置 allowPrivilegeEscalation 值为 false。可以在《加固指南》中找到示例。https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.6
-        text: "Minimize the admission of root containers (Manual)"
+        text: "减少根容器的准入（手动）"
         type: "manual"
-        remediation: |
-          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.allowPrivilegeEscalation == null) or (.spec.allowPrivilegeEscalation == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'
-          An operator should apply a PodSecurityPolicy that sets the runAsUser.Rule value to MustRunAsNonRoot. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl get psp -o json | jq .items[] | jq -r 'select((.spec.allowPrivilegeEscalation == null) or (.spec.allowPrivilegeEscalation == false))' | jq .metadata.name | wc -l | xargs -I {} echo '--count={}'操作者应该应用一个 PodSecurityPolicy，将 runAsUser.Rule 的值设置为 MustRunAsNonRoot。具体示例可在强化指南中找到。https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.7
-        text: "Minimize the admission of containers with the NET_RAW capability (Manual)"
+        text: "限制具有 NET_RAW 权限的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          kubectl get psp <psp_name> -o json | jq .spec.requiredDropCapabilities[]
-          An operator should apply a PodSecurityPolicy that sets .spec.requiredDropCapabilities[] to a value of All. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl get psp <psp_name> -o json | jq .spec.requiredDropCapabilities[]运算符应该应用一个 PodSecurityPolicy，将 .spec.requiredDropCapabilities[] 设置为 All 的值。可以在硬化指南中找到此类示例。请参考：https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.8
-        text: "Minimize the admission of containers with added capabilities (Manual)"
+        text: "最小化具有额外权限的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          kubectl get psp
-          An operator should apply a PodSecurityPolicy that sets allowedCapabilities to anything other than an empty array. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl get psp操作员应该应用一个 PodSecurityPolicy，将 allowedCapabilities 设置为非空数组。此设置示例可以在《加固指南》中找到。https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
       - id: 5.2.9
-        text: "Minimize the admission of containers with capabilities assigned (Manual)"
+        text: "减少分配了权限的容器的准入（手动）。"
         type: "manual"
-        remediation: |
-          kubectl get psp
-          An operator should apply a PodSecurityPolicy that sets requiredDropCapabilities to ALL. An example of this can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          kubectl get psp操作员应该应用一个 PodSecurityPolicy，将 requiredDropCapabilities 设置为 ALL。可以在《Hardening Guide》中找到这方面的示例。https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
   - id: 5.3
-    text: "Network Policies and CNI"
+    text: "网络策略和CNI"
     checks:
       - id: 5.3.1
-        text: "Ensure that the CNI in use supports Network Policies (Manual)"
+        text: "确保所使用的 CNI 支持网络策略（手动配置）。"
         type: "manual"
-        remediation: |
-          By default, K3s use Canal (Calico and Flannel) and fully supports network policies.
+        remediation: |-
+          默认情况下，K3s 使用 Canal（Calico 和 Flannel），并完全支持网络策略。
         scored: false
 
       - id: 5.3.2
-        text: "Ensure that all Namespaces have Network Policies defined (Manual)"
+        text: "确保所有命名空间都定义了网络策略（手动）。"
         type: "manual"
-        remediation: |
-          Run the below command on the master node.
-          for i in kube-system kube-public default; do
-            kubectl get networkpolicies -n $i;
-          done
-          Verify that there are network policies applied to each of the namespaces.
-          An operator should apply NetworkPolcyies that prevent unneeded traffic from traversing networks unnecessarily. An example of applying a NetworkPolcy can be found in the Hardening Guide.
-          https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
+        remediation: |-
+          在主节点上运行以下命令。for i in kube-system kube-public default; do  kubectl get networkpolicies -n $i;done验证各个命名空间都应用了网络策略。运维应该应用 NetworkPolicies 来防止不必要的流量在网络上不必要地传输。如何应用 NetworkPolicy 的示例可以在 Hardening Guide 中找到。https://docs.rancher.cn/docs/k3s/security/hardening-guide/_index
         scored: false
 
   - id: 5.4
-    text: "Secrets Management"
+    text: "Secrets 管理"
     checks:
       - id: 5.4.1
-        text: "Prefer using secrets as files over secrets as environment variables (Manual)"
+        text: "建议使用将机密作为文件而不是环境变量（手动方式）。"
         type: "manual"
-        remediation: |
-          Run the following command to find references to objects which use environment variables defined from secrets.
-          kubectl get all -o jsonpath='{range .items[?(@..secretKeyRef)]} {.kind} {.metadata.name} {"\n"}{end}' -A
-
-          if possible, rewrite application code to read secrets from mounted secret files, rather than
-          from environment variables.
+        remediation: |-
+          运行以下命令以查找使用从Secrets定义的环境变量的对象的引用：kubectl get all -o jsonpath='{range .items[?(@..secretKeyRef)]} {.kind} {.metadata.name} {"\n"}{end}' -A如果可能的话，请重写应用程序代码，从挂载的秘密文件中读取秘密，而不是从环境变量中读取。
         scored: false
 
       - id: 5.4.2
-        text: "Consider external secret storage (Manual)"
+        text: "考虑外部秘钥存储（手动操作）。"
         type: "manual"
-        remediation: |
-          Refer to the secrets management options offered by your cloud provider or a third-party
-          secrets management solution.
+        remediation: |-
+          请参考您的云服务提供商或第三方秘密管理解决方案提供的秘密管理选项。
         scored: false
 
   - id: 5.5
-    text: "Extensible Admission Control"
+    text: "可扩展的准入控制"
     checks:
       - id: 5.5.1
-        text: "Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)"
+        text: "使用 ImagePolicyWebhook 出入控制器（手动）配置镜像来源。"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and setup image provenance.
+        remediation: |-
+          按照 Kubernetes 文档的指引设置镜像可信任性。
         scored: false
 
   - id: 5.7
-    text: "General Policies"
+    text: "一般策略"
     checks:
       - id: 5.7.1
-        text: "Create administrative boundaries between resources using namespaces (Manual)"
+        text: "使用命名空间 (手动) 在资源之间创建管理边界。"
         audit: kubectl get namespaces
         type: "manual"
-        remediation: |
-          Ensure that these namespaces are the ones you need and are adequately administered as per your requirements.
-          Follow the documentation and create namespaces for objects in your deployment as you need
-          them.
+        remediation: |-
+          确保这些命名空间是您需要的，并根据您的要求进行适当的管理。按照文档的指导，根据您的部署需求创建所需的对象的命名空间。
         scored: false
 
       - id: 5.7.2
-        text: "Ensure that the seccomp profile is set to docker/default in your pod definitions (Manual)"
+        text: "确保在您的 Pod 定义中将 seccomp 配置设置为 docker/default（手动方式）。"
         type: "manual"
-        remediation: |
-          Seccomp is an alpha feature currently. By default, all alpha features are disabled. So, you
-          would need to enable alpha features in the apiserver by passing "--feature-
-          gates=AllAlpha=true" argument.
-          Edit the /etc/kubernetes/apiserver file on the master node and set the KUBE_API_ARGS
-          parameter to "--feature-gates=AllAlpha=true"
-          KUBE_API_ARGS="--feature-gates=AllAlpha=true"
-          Based on your system, restart the kube-apiserver service. For example:
-          systemctl restart kube-apiserver.service
-          Use annotations to enable the docker/default seccomp profile in your pod definitions. An
-          example is as below:
-          apiVersion: v1
-          kind: Pod
-          metadata:
-            name: trustworthy-pod
-            annotations:
-              seccomp.security.alpha.kubernetes.io/pod: docker/default
-          spec:
-            containers:
-              - name: trustworthy-container
-                image: sotrustworthy:latest
+        remediation: |-
+          Seccomp 目前是一个 alpha 特性。默认情况下，所有 alpha 特性都是禁用的。因此，您需要通过传递 "--feature-gates=AllAlpha=true" 参数来在 apiserver 中启用 alpha 特性。编辑主节点上的 /etc/kubernetes/apiserver 文件，并将 KUBE_API_ARGS 参数设置为 "--feature-gates=AllAlpha=true"。KUBE_API_ARGS="--feature-gates=AllAlpha=true"根据您的系统，重新启动 kube-apiserver 服务。例如：systemctl restart kube-apiserver.service使用注释来在您的 Pod 定义中启用 docker/default 的 seccomp 配置文件。示例如下：apiVersion: v1kind: Podmetadata:  name: trustworthy-pod  annotations:    seccomp.security.alpha.kubernetes.io/pod: docker/defaultspec:  containers:    - name: trustworthy-container      image: sotrustworthy:latest
         scored: false
 
       - id: 5.7.3
-        text: "Apply Security Context to Your Pods and Containers (Manual)"
+        text: "为您的 Pod 和容器应用安全上下文（手动操作）"
         type: "manual"
-        remediation: |
-          Follow the Kubernetes documentation and apply security contexts to your pods. For a
-          suggested list of security contexts, you may refer to the CIS Security Benchmark for Docker
-          Containers.
+        remediation: |-
+          按照 Kubernetes 文档的指引，为您的 Pod 应用安全上下文。对于安全上下文的建议列表，您可以参考 CIS Docker 容器安全基准。
         scored: false
 
       - id: 5.7.4
-        text: "The default namespace should not be used (Manual)"
+        text: "不应使用默认命名空间（手动操作）。"
         type: "manual"
-        remediation: |
-          Run the below command on the master node.
-          kubectl get all -n default
-          The only entries there should be system-managed resources such as the kubernetes service.
-          Ensure that namespaces are created to allow for appropriate segregation of Kubernetes
-          resources and that all new resources are created in a specific namespace.
+        remediation: |-
+          在主节点上运行以下命令。kubectl get all -n default那里应该只有系统管理的资源，如 Kubernetes 服务。确保创建了命名空间，以允许适当地对 Kubernetes 资源进行隔离，并且所有新资源都应该创建在特定的命名空间中。
         scored: false

@@ -1,20 +1,15 @@
----
 controls:
 version: "gke-1.6.0"
 id: 2
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 2.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 2.1.1
-        text: "Client certificate authentication should not be used for users (Manual)"
+        text: "客户端证书认证不应该用于用户（手动）。"
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
-          implemented in place of client certificates.
-
-          You can remediate the availability of client certificates in your GKE cluster. See
-          Recommendation 5.8.1.
+        remediation: |-
+          应该实施 Kubernetes 提供的 OIDC 等备选机制，代替客户端证书。您可以在 GKE 集群中处理客户端证书的可用性。请参考推荐项 5.8.1。
         scored: false

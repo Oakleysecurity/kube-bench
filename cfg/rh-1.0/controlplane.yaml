@@ -1,15 +1,14 @@
----
 controls:
 version: rh-1.0
 id: 3
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 3.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 3.1.1
-        text: "Client certificate authentication should not be used for users (Manual)"
+        text: "客户端证书认证不应该用于用户（手动）。"
         audit: |
           # To verify user authentication is enabled
           oc describe authentication
@@ -20,20 +19,15 @@ groups:
           # To verity that kbueadmin is removed, no results should be returned
           oc get secrets kubeadmin -n kube-system
         type: manual
-        remediation: |
-          Configure an identity provider for the OpenShift cluster.
-          Understanding identity provider configuration | Authentication | OpenShift
-          Container Platform 4.5. Once an identity provider has been defined,
-          you can use RBAC to define and apply permissions.
-          After you define an identity provider and create a new cluster-admin user,
-          remove the kubeadmin user to improve cluster security.
+        remediation: |-
+          为 OpenShift 集群配置身份提供者。理解身份提供者配置 | 认证 | OpenShift 容器平台 4.5。一旦定义了身份提供者，您可以使用 RBAC 来定义和应用权限。在定义身份提供者并创建新的 cluster-admin 用户之后，移除 kubeadmin 用户以提高集群安全性。
         scored: false
 
   - id: 3.2
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 3.2.1
-        text: "Ensure that a minimal audit policy is created (Manual)"
+        text: "确保创建一个最小的审计策略（手动）。"
         audit: |
           #To view kube apiserver log files
           oc adm node-logs --role=master --path=kube-apiserver/
@@ -44,19 +38,18 @@ groups:
           #To verify openshift apiserver audit config
           oc get configmap config -n openshift-apiserver -ojson | jq -r '.data["config.yaml"]' | jq '.auditConfig[]?'
         type: manual
-        remediation: |
-          No remediation required.
+        remediation: |-
+          不需要进行修复。
         scored: false
 
       - id: 3.2.2
-        text: "Ensure that the audit policy covers key security concerns (Manual)"
+        text: "确保审计策略涵盖关键的安全问题（手动）。"
         audit: |
           #To verify openshift apiserver audit config
           oc get configmap config -n openshift-kube-apiserver -ojson | jq -r '.data["config.yaml"]' | jq '.auditConfig.policyConfiguration.rules[]?'
           #To verify kube apiserver audit config
           oc get configmap config -n openshift-apiserver -ojson | jq -r '.data["config.yaml"]' | jq '.auditConfig.policyConfiguration.rules[]?'
         type: manual
-        remediation: |
-          In OpenShift 4.6 and higher, if appropriate for your needs,
-          modify the audit policy.
+        remediation: |-
+          在 OpenShift 4.6 及更高版本中，如果符合您的需求，修改审计策略。
         scored: false

@@ -1,78 +1,77 @@
----
 controls:
 version: "gke-1.0"
 id: 4
-text: "Worker Node Security Configuration"
+text: "工作节点安全配置"
 type: "node"
 groups:
   - id: 4.1
-    text: "Worker Node Configuration Files"
+    text: "工作节点配置文件"
     checks:
       - id: 4.1.1
-        text: "Ensure that the kubelet service file permissions are set to 644 or more restrictive (Not Scored)"
+        text: "确保 kubelet 服务文件的权限设置为 644 或更严格（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "在 GKE 中无法修改此控件。"
         scored: false
 
       - id: 4.1.2
-        text: "Ensure that the kubelet service file ownership is set to root:root (Not Scored)"
+        text: "确保 kubelet 服务文件的所有权设置为 root:root（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "这个控制项在 GKE 中无法修改。"
         scored: false
 
       - id: 4.1.3
-        text: "Ensure that the proxy kubeconfig file permissions are set to 644 or more restrictive (Scored)"
-        audit: '/bin/sh -c ''if test -e $proxykubeconfig; then stat -c permissions=%a $proxykubeconfig; fi'' '
+        text: "确保代理 kubeconfig 文件的权限设置为 644 或更加严格（评分）。"
+        audit: '/bin/sh -c ''if test -e $proxykubeconfig; then stat -c permissions=%a
+          $proxykubeconfig; fi'' '
         tests:
           test_items:
             - flag: "permissions"
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command (based on the file location on your system) on each worker node.
-          For example,
-          chmod 644 $proxykubeconfig
+        remediation: |-
+          在每个 worker 节点上运行以下命令（根据您系统上文件的位置）。例如，chmod 644 $proxykubeconfig
         scored: true
 
       - id: 4.1.4
-        text: "Ensure that the proxy kubeconfig file ownership is set to root:root (Scored)"
-        audit: '/bin/sh -c ''if test -e $proxykubeconfig; then stat -c %U:%G $proxykubeconfig; fi'' '
+        text: "确保代理 kubeconfig 文件的所有权设置为 root:root（得分）。"
+        audit: '/bin/sh -c ''if test -e $proxykubeconfig; then stat -c %U:%G $proxykubeconfig;
+          fi'' '
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          Run the below command (based on the file location on your system) on each worker node.
-          For example, chown root:root $proxykubeconfig
+        remediation: |-
+          在每个 worker 节点上运行以下命令（根据文件在您系统上的位置）。例如，chown root:root $proxykubeconfig
         scored: true
 
       - id: 4.1.5
-        text: "Ensure that the kubelet.conf file permissions are set to 644 or more restrictive (Not Scored)"
+        text: "确保 kubelet.conf 文件权限设置为 644 或更严格（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "这个控制在 GKE 中无法修改。"
         scored: false
 
       - id: 4.1.6
-        text: "Ensure that the kubelet.conf file ownership is set to root:root (Not Scored)"
+        text: "确保 kubelet.conf 文件的所有权设置为 root:root（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "这个控制项在 GKE 中无法修改。"
         scored: false
 
       - id: 4.1.7
-        text: "Ensure that the certificate authorities file permissions are set to 644 or more restrictive (Not Scored)"
+        text: "确保证书颁发机构文件的权限设置为 644 或更严格（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "这个控制项无法在 GKE 中修改。"
         scored: false
 
       - id: 4.1.8
-        text: "Ensure that the client certificate authorities file ownership is set to root:root (Not Scored)"
+        text: "确保客户端证书机构文件所有权设置为 root:root（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "在 GKE 中无法修改此控件。"
         scored: false
 
       - id: 4.1.9
-        text: "Ensure that the kubelet configuration file has permissions set to 644 or more restrictive (Scored)"
-        audit: '/bin/sh -c ''if test -e $kubeletconf; then stat -c permissions=%a $kubeletconf; fi'' '
+        text: "确保 kubelet 配置文件的权限设置为 644 或更严格（评分）。"
+        audit: '/bin/sh -c ''if test -e $kubeletconf; then stat -c permissions=%a
+          $kubeletconf; fi'' '
         tests:
           test_items:
             - flag: "permissions"
@@ -80,27 +79,26 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the following command (using the config file location identified in the Audit step)
-          chmod 644 $kubeletconf
+        remediation: |-
+          运行以下命令（使用审计步骤中识别的配置文件位置）：chmod 644 $kubeletconf
         scored: true
 
       - id: 4.1.10
-        text: "Ensure that the kubelet configuration file ownership is set to root:root (Scored)"
-        audit: '/bin/sh -c ''if test -e $kubeletconf; then stat -c %U:%G $kubeletconf; fi'' '
+        text: "确保 kubelet 配置文件的所有权设置为 root:root（得分）。"
+        audit: '/bin/sh -c ''if test -e $kubeletconf; then stat -c %U:%G $kubeletconf;
+          fi'' '
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          Run the following command (using the config file location identified in the Audit step)
-          chown root:root $kubeletconf
+        remediation: |-
+          运行以下命令（使用审计步骤中确定的配置文件位置）：chown root:root $kubeletconf
         scored: true
 
   - id: 4.2
     text: "Kubelet"
     checks:
       - id: 4.2.1
-        text: "Ensure that the --anonymous-auth argument is set to false (Scored)"
+        text: "确保将 --anonymous-auth 参数设置为 false（得分）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -110,20 +108,12 @@ groups:
               compare:
                 op: eq
                 value: false
-        remediation: |
-          If using a Kubelet config file, edit the file to set authentication: anonymous: enabled to
-          false.
-          If using executable arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
-          --anonymous-auth=false
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，请编辑文件并将 authentication: anonymous: enabled 设置为 false。如果使用可执行参数，请编辑每个工作节点的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_SYSTEM_PODS_ARGS 变量中设置以下参数。--anonymous-auth=false根据您的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.2
-        text: "Ensure that the --authorization-mode argument is not set to AlwaysAllow (Scored)"
+        text: "确保 --authorization-mode 参数未设置为 AlwaysAllow（得分）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -133,19 +123,12 @@ groups:
               compare:
                 op: nothave
                 value: AlwaysAllow
-        remediation: |
-          If using a Kubelet config file, edit the file to set authorization: mode to Webhook. If
-          using executable arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_AUTHZ_ARGS variable.
-          --authorization-mode=Webhook
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，编辑文件将 authorization: mode 设置为 Webhook。如果是使用可执行参数，编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_AUTHZ_ARGS 变量中设置以下参数 --authorization-mode=Webhook。根据您的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.3
-        text: "Ensure that the --client-ca-file argument is set as appropriate (Scored)"
+        text: "确保将 --client-ca-file 参数设置为正确的值（得分）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -153,26 +136,18 @@ groups:
             - flag: --client-ca-file
               path: '{.authentication.x509.clientCAFile}'
               set: true
-        remediation: |
-          If using a Kubelet config file, edit the file to set authentication: x509: clientCAFile to
-          the location of the client CA file.
-          If using command line arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_AUTHZ_ARGS variable.
-          --client-ca-file=<path/to/client-ca-file>
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，请编辑文件将 authentication: x509: clientCAFile 设置为客户端CA文件的路径。如果使用命令行参数，请在每个 worker 节点上编辑 kubelet 服务文件 $kubeletsvc，并在 KUBELET_AUTHZ_ARGS 变量中设置以下参数。--client-ca-file=<path/to/client-ca-file>根据你的系统，重启 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.4
-        text: "Ensure that the --read-only-port argument is set to 0 (Scored)"
+        text: "确保将 --read-only-port 参数设置为 0（得分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "在 GKE 中无法修改此控件。"
         scored: true
 
       - id: 4.2.5
-        text: "Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Scored)"
+        text: "确保 --streaming-connection-idle-timeout 参数未设置为 0（得分）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -186,25 +161,17 @@ groups:
               path: '{.streamingConnectionIdleTimeout}'
               set: false
           bin_op: or
-        remediation: |
-          If using a Kubelet config file, edit the file to set streamingConnectionIdleTimeout to a
-          value other than 0.
-          If using command line arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
-          --streaming-connection-idle-timeout=5m
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，请编辑文件，将 streamingConnectionIdleTimeout 设置为非 0 值。如果使用命令行参数，请编辑每个 worker 节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_SYSTEM_PODS_ARGS 变量中设置以下参数：--streaming-connection-idle-timeout=5m根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.6
-        text: "Ensure that the --protect-kernel-defaults argument is set to true (Scored)"
+        text: "确保将 --protect-kernel-defaults 参数设置为 true（评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "在 GKE 中无法修改此控件。"
 
       - id: 4.2.7
-        text: "Ensure that the --make-iptables-util-chains argument is set to true (Scored) "
+        text: "确保 --make-iptables-util-chains 参数设置为 true（得分）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -218,45 +185,33 @@ groups:
               path: '{.makeIPTablesUtilChains}'
               set: false
           bin_op: or
-        remediation: |
-          If using a Kubelet config file, edit the file to set makeIPTablesUtilChains: true.
-          If using command line arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          remove the --make-iptables-util-chains argument from the
-          KUBELET_SYSTEM_PODS_ARGS variable.
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，请编辑该文件，并设置 makeIPTablesUtilChains 为 true。如果使用命令行参数，请编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并从 KUBELET_SYSTEM_PODS_ARGS 变量中移除 --make-iptables-util-chains 参数。根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.8
-        text: "Ensure that the --hostname-override argument is not set (Scored)"
+        text: "确保未设置 --hostname-override 参数（得分）。"
         audit: "/bin/ps -fC $kubeletbin "
         tests:
           test_items:
             - flag: --hostname-override
               set: false
-        remediation: |
-          Edit the kubelet service file $kubeletsvc
-          on each worker node and remove the --hostname-override argument from the
-          KUBELET_SYSTEM_PODS_ARGS variable.
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          在每个工作节点上编辑 kubelet 服务文件 $kubeletsvc，并从 KUBELET_SYSTEM_PODS_ARGS 变量中删除 --hostname-override 参数。根据您的系统，重启 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.9
-        text: "Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture (Scored)"
+        text: "确保将 --event-qps 参数设置为 0 或确保适当的事件捕获水平（得分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "这个控制在 GKE 中无法修改。"
 
       - id: 4.2.10
-        text: "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate (Scored)"
+        text: "确保将 --tls-cert-file 和 --tls-private-key-file 参数设置为适当的值（已得分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "在 GKE 中无法修改此控件。"
 
       - id: 4.2.11
-        text: "Ensure that the --rotate-certificates argument is not set to false (Scored)"
+        text: "确保 --rotate-certificates 参数没有设置为 false (得分)。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -270,20 +225,12 @@ groups:
               path: '{.rotateCertificates}'
               set: false
           bin_op: or
-        remediation: |
-          If using a Kubelet config file, edit the file to add the line rotateCertificates: true or
-          remove it altogether to use the default value.
-          If using command line arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          remove --rotate-certificates=false argument from the KUBELET_CERTIFICATE_ARGS
-          variable.
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，编辑该文件，添加 rotateCertificates: true 这一行，或者将该行删除以使用默认值。如果使用命令行参数，编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，从 KUBELET_CERTIFICATE_ARGS 变量中删除 --rotate-certificates=false 参数。根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.12
-        text: "Ensure that the RotateKubeletServerCertificate argument is set to true (Scored)"
+        text: "确保 RotateKubeletServerCertificate 参数设置为 true（得分）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -293,17 +240,12 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          Edit the kubelet service file $kubeletsvc
-          on each worker node and set the below parameter in KUBELET_CERTIFICATE_ARGS variable.
-          --feature-gates=RotateKubeletServerCertificate=true
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_CERTIFICATE_ARGS 变量中设置以下参数。--feature-gates=RotateKubeletServerCertificate=true根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
 
       - id: 4.2.13
-        text: "Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers (Not Scored)"
+        text: "确保 Kubelet 仅使用强加密算法（未评分）。"
         type: skip
-        remediation: "This control cannot be modified in GKE."
+        remediation: "这个控制项在 GKE 中无法修改。"
         scored: false

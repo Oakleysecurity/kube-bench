@@ -1,15 +1,14 @@
----
 controls:
 version: "eks-stig-kubernetes-v1r6"
 id: 3
-text: "Worker Node Security Configuration"
+text: "工作节点安全配置"
 type: "node"
 groups:
   - id: 3.1
-    text: "DISA Category Code I"
+    text: "DISA 分类代码 I"
     checks:
       - id: V-242387   # CIS 3.2.4
-        text: "The Kubernetes Kubelet must have the read-only port flag disabled (Manual)"
+        text: "Kubernetes Kubelet 必须禁用只读端口标志（手动）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -20,18 +19,11 @@ groups:
               compare:
                 op: eq
                 value: 0
-        remediation: |
-          If using a Kubelet config file, edit $kubeletconf to set readOnlyPort to 0.
-          If using command line arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
-          --read-only-port=0
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，请编辑 $kubeletconf 文件，将 readOnlyPort 设置为 0。如果使用命令行参数，请编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_SYSTEM_PODS_ARGS 变量中设置以下参数。--read-only-port=0根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: false
       - id: V-242391  # CIS 3.2.1
-        text: "The Kubernetes Kubelet must have anonymous authentication disabled (Automated)"
+        text: "Kubernetes Kubelet 必须将匿名身份验证禁用（自动化）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -42,19 +34,11 @@ groups:
               compare:
                 op: eq
                 value: false
-        remediation: |
-          If using a Kubelet config file, edit $kubeletconf to set authentication: anonymous: enabled to
-          false.
-          If using executable arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
-          --anonymous-auth=false
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，编辑 $kubeletconf 将 authentication: anonymous: enabled 设置为 false。如果使用可执行参数，编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_SYSTEM_PODS_ARGS 变量中设置以下参数。--anonymous-auth=false根据你的系统，重启 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
       - id: V-242392  # CIS 3.2.2
-        text: "The Kubernetes kubelet must enable explicit authorization (Automated)"
+        text: "Kubernetes kubelet 必须启用显式授权（自动化）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -65,42 +49,28 @@ groups:
               compare:
                 op: nothave
                 value: AlwaysAllow
-        remediation: |
-          If using a Kubelet config file, edit $kubeletconf to set authorization: mode to Webhook. If
-          using executable arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_AUTHZ_ARGS variable.
-          --authorization-mode=Webhook
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，编辑 $kubeletconf 文件，将 authorization: mode 设置为 Webhook。如果使用可执行参数，编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_AUTHZ_ARGS 变量中设置以下参数。--authorization-mode=Webhook根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
       - id: V-242397
-        text: "The Kubernetes kubelet static PodPath must not enable static pods (Automated)"
+        text: "Kubernetes kubelet 静态 PodPath 不得启用静态 Pod（自动化）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
           test_items:
             - path: '{.staticPodPath}'
               set: false
-        remediation: |
-          Edit $kubeletconf on each node to to remove the staticPodPath
-          Based on your system, restart the kubelet service. For example,
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          在每个节点上编辑 $kubeletconf 文件，删除 staticPodPath 部分。根据你的系统，重新启动 kubelet 服务。例如，systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
       - id: V-242415
-        text: "Secrets in Kubernetes must not be stored as environment variables.(Manual)"
+        text: "在 Kubernetes 中，秘钥不应该存储为环境变量。（手动）"
         type: "manual"
-        remediation: |
-         Run the following command:
-         kubectl get all -o jsonpath='{range .items[?(@..secretKeyRef)]} {.kind} {.metadata.name} {"\n"}{end}' -A
-         If any of the values returned reference environment variables
-         rewrite application code to read secrets from mounted secret files, rather than
-         from environment variables.
+        remediation: |-
+          运行以下命令：kubectl get all -o jsonpath='{range .items[?(@..secretKeyRef)]} {.kind} {.metadata.name} {"\n"}{end}' -A如果返回的任何值引用环境变量，请重写应用代码，从挂载的秘密文件中读取秘密，而不是从环境变量中读取。
         scored: false
       - id: V-242434  # CIS 3.2.6
-        text: "Kubernetes Kubelet must enable kernel protection (Automated)"
+        text: "Kubernetes Kubelet 必须启用内核保护（自动化）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -111,18 +81,11 @@ groups:
               compare:
                 op: eq
                 value: true
-        remediation: |
-          If using a Kubelet config file, edit $kubeletconf to set protectKernelDefaults: true.
-          If using command line arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
-          --protect-kernel-defaults=true
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，请编辑 $kubeletconf 文件，将 protectKernelDefaults: true 设置为 true。如果使用命令行参数，请编辑每个工作节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_SYSTEM_PODS_ARGS 变量中设置如下参数：--protect-kernel-defaults=true。根据您的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
       - id: V-242435
-        text: "Kubernetes must prevent non-privileged users from executing privileged functions (Automated)"
+        text: "Kubernetes 必须防止非特权用户执行特权功能（自动化）。"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -133,18 +96,11 @@ groups:
               compare:
                 op: nothave
                 value: AlwaysAllow
-        remediation: |
-          If using a Kubelet config file, edit $kubeletconf to set authorization: mode to Webhook. If
-          using executable arguments, edit the kubelet service file
-          $kubeletsvc on each worker node and
-          set the below parameter in KUBELET_AUTHZ_ARGS variable.
-          --authorization-mode=Webhook
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          如果使用 Kubelet 配置文件，编辑 $kubeletconf 将 authorization: mode 设置为 Webhook。如果使用可执行参数，编辑每个 worker 节点上的 kubelet 服务文件 $kubeletsvc，并在 KUBELET_AUTHZ_ARGS 变量中设置以下参数。--authorization-mode=Webhook根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
       - id: V-242393
-        text: "Kubernetes Worker Nodes must not have sshd service running. (Automated)"
+        text: "Kubernetes Worker 节点上不能运行 sshd 服务。（自动化）"
         audit: '/bin/sh -c ''systemctl show -p ActiveState sshd'' '
         tests:
           test_items:
@@ -152,30 +108,26 @@ groups:
               compare:
                 op: eq
                 value: inactive
-        remediation: |
-          To stop the sshd service, run the command: systemctl stop sshd
+        remediation: |-
+          停止 sshd 服务，请运行命令：systemctl stop sshd.
         scored: true
       - id: V-242394
-        text: "Kubernetes Worker Nodes must not have the sshd service enabled. (Automated)"
+        text: "Kubernetes Worker 节点不应该启用 sshd 服务。(自动化)"
         audit: "/bin/sh -c 'systemctl is-enabled sshd.service'"
         tests:
           test_items:
             - flag: "disabled"
-        remediation: |
-          To disable the sshd service, run the command:
-            chkconfig sshd off
+        remediation: |-
+          要禁用 sshd 服务，请运行以下命令：chkconfig sshd off
         scored: true
       - id: V-242395
-        text: "Kubernetes dashboard must not be enabled. (Manual)"
+        text: "Kubernetes dashboard 不应该被启用。（手动）"
         type: "manual"
-        remediation: |
-          Run the command: kubectl get pods --all-namespaces -l k8s-app=kubernetes-dashboard
-          If any resources are returned, this is a finding.
-          Fix Text: Delete the Kubernetes dashboard deployment with the following command:
-            kubectl delete deployment kubernetes-dashboard --namespace=kube-system
+        remediation: |-
+          运行以下命令：kubectl get pods --all-namespaces -l k8s-app=kubernetes-dashboard如果返回任何资源，则说明存在问题。修复文本：使用以下命令删除 Kubernetes 仪表板部署：  kubectl delete deployment kubernetes-dashboard --namespace=kube-system
         scored: false
       - id: V-242398
-        text: "Kubernetes DynamicAuditing must not be enabled. (Automated)"
+        text: "Kubernetes 动态审计必须未启用。（自动）"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -188,15 +140,11 @@ groups:
               set: true
             - flag: "--feature-gates"
               set: false
-        remediation: |
-          Edit any manifest files or kubelet config files that contain the feature-gates
-          setting with DynamicAuditing set to "true".
-          Set the flag to "false" or remove the "DynamicAuditing" setting
-          completely. Restart the kubelet service if the kubelet config file
-          if the kubelet config file is changed.
+        remediation: |-
+          编辑包含 DynamicAuditing 设置为 "true" 的功能门特征设置的任何清单文件或 kubelet 配置文件。将标志设置为 "false" 或完全删除 "DynamicAuditing" 设置。如果更改了 kubelet 配置文件，则重新启动 kubelet 服务。
         scored: true
       - id: V-242399
-        text: "Kubernetes DynamicKubeletConfig must not be enabled. (Automated)"
+        text: "Kubernetes DynamicKubeletConfig 必须处于禁用状态。 (自动化)"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -209,15 +157,11 @@ groups:
               set: true
             - flag: "--feature-gates"
               set: false
-        remediation: |
-          Edit any manifest files or $kubeletconf that contain the feature-gates
-          setting with DynamicKubeletConfig set to "true".
-          Set the flag to "false" or remove the "DynamicKubeletConfig" setting
-          completely. Restart the kubelet service if the kubelet config file
-          if the kubelet config file is changed.
+        remediation: |-
+          编辑包含 DynamicKubeletConfig 设置为 "true" 的任何清单文件或 $kubeletconf 文件。将该标志设置为 "false" 或完全删除 "DynamicKubeletConfig" 设置。如果更改了 kubelet 配置文件，请重新启动 kubelet 服务。
         scored: true
       - id: V-242404  # CIS 3.2.8
-        text: "Kubernetes Kubelet must deny hostname override (Automated)"
+        text: "Kubernetes Kubelet 必须拒绝主机名覆盖（自动）。"
         # This is one of those properties that can only be set as a command line argument.
         # To check if the property is set as expected, we need to parse the kubelet command
         # instead reading the Kubelet Configuration file.
@@ -226,62 +170,47 @@ groups:
           test_items:
             - flag: --hostname-override
               set: false
-        remediation: |
-          Edit the kubelet service file $kubeletbin
-          on each worker node and remove the --hostname-override argument from the
-          KUBELET_SYSTEM_PODS_ARGS variable.
-          Based on your system, restart the kubelet service. For example:
-          systemctl daemon-reload
-          systemctl restart kubelet.service
+        remediation: |-
+          编辑每个工作节点上的 kubelet 服务文件 $kubeletbin，并从 KUBELET_SYSTEM_PODS_ARGS 变量中移除 --hostname-override 参数。根据你的系统，重新启动 kubelet 服务。例如：systemctl daemon-reloadsystemctl restart kubelet.service
         scored: true
       - id: V-242406
-        text: "The Kubernetes kubelet configuration file must be owned by root (Automated)"
-        audit: '/bin/sh -c ''if test -e $kubeletkubeconfig; then stat -c %U:%G $kubeletkubeconfig; fi'' '
+        text: "Kubernetes kubelet 配置文件必须由 root（自动）所有。"
+        audit: '/bin/sh -c ''if test -e $kubeletkubeconfig; then stat -c %U:%G $kubeletkubeconfig;
+          fi'' '
         tests:
           test_items:
             - flag: root:root
-        remediation: |
-          Run the below command (based on the file location on your system) on the each worker node.
-          For example,
-          chown root:root $kubeletkubeconfig
+        remediation: |-
+          在每个工作节点上运行以下命令（根据您系统上文件的位置）。例如，chown root:root $kubeletkubeconfig
         scored: true
       - id: V-242407
-        text: "The Kubernetes kubelet configuration files must have file permissions set to 644 or more restrictive (Automated)"
-        audit: '/bin/sh -c ''if test -e $kubeletconf; then stat -c permissions=%a $kubeletconf; fi'' '
+        text: "Kubernetes kubelet 配置文件的文件权限必须设置为 644 或更严格（自动化）。"
+        audit: '/bin/sh -c ''if test -e $kubeletconf; then stat -c permissions=%a
+          $kubeletconf; fi'' '
         tests:
           test_items:
             - flag: "permissions"
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the following command (using the config file location identified in the Audit step)
-          chmod 644 $kubeletconf
+        remediation: |-
+          在执行以下命令（使用审计步骤中确定的配置文件位置）chmod 644 $kubeletconf
         scored: true
       - id: V-242414
-        text: "The Kubernetes cluster must use non-privileged host ports for user pods. (Manual)"
+        text: "Kubernetes 集群必须为用户 Pod 使用非特权主机端口。（手动）"
         type: "manual"
-        remediation: |
-          For any of the pods that are using ports below 1024,
-          reconfigure the pod to use a service to map a host non-privileged
-          port to the pod port or reconfigure the image to use non-privileged ports.
+        remediation: |-
+          对于使用低于1024端口的任何 pod，重新配置 pod 使用服务将主机非特权端口映射到 pod 端口，或重新配置镜像使用非特权端口。
         scored: false
       - id: V-242442
-        text: "Kubernetes must remove old components after updated versions have been installed. (Manual)"
+        text: "Kubernetes 在安装新版本后必须手动删除旧组件。"
         type: "manual"
-        remediation: |
-           To view all pods and the images used to create the pods, from the Master node, run the following command:
-            kubectl get pods --all-namespaces -o jsonpath="{..image}" | \
-            tr -s '[[:space:]]' '\n' | \
-            sort | \
-            uniq -c
-            Review the images used for pods running within Kubernetes.
-            Remove any old pods that are using older images.
+        remediation: |-
+          要查看所有 Pod 及用于创建这些 Pod 的镜像，从 Master 节点上运行以下命令：```bashkubectl get pods --all-namespaces -o jsonpath="{..image}" | \ tr -s '[[:space:]]' '\n' | \ sort | \ uniq -c```审查在 Kubernetes 中运行的 Pod 使用的镜像。删除正在使用旧镜像的任何旧 Pod。
         scored: false
       - id: V-242396
-        text: "Kubernetes Kubectl cp command must give expected access and results. (Manual)"
+        text: "Kubernetes `kubectl cp` 命令必须提供预期的访问权限和结果。(手动操作)"
         type: "manual"
-        remediation: |
-          If any Worker nodes are not using kubectl version 1.12.9 or newer, this is a finding.
-          Upgrade the Master and Worker nodes to the latest version of kubectl.
+        remediation: |-
+          如果任何 Worker 节点未使用 kubectl 版本 1.12.9 或更新版本，则属于问题发现。升级 Master 和 Worker 节点至最新版本的 kubectl。
         scored: false

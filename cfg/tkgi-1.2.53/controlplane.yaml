@@ -1,40 +1,35 @@
----
 controls:
 version: "tkgi-1.2.53"
 id: 3
-text: "Control Plane Configuration"
+text: "控制平面配置"
 type: "controlplane"
 groups:
   - id: 3.1
-    text: "Authentication and Authorization"
+    text: "认证和授权"
     checks:
       - id: 3.1.1
-        text: "Client certificate authentication should not be used for users"
+        text: "客户端证书认证不应该用于用户。"
         audit: ps -ef | grep kube-apiserver | grep -- "--oidc-issuer-url="
         type: "manual"
-        remediation: |
-          Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
-          implemented in place of client certificates.
-          Exception
-          This setting is site-specific. It can be set in the "Configure created clusters to use UAA as the OIDC provider."
-          section of the "UAA"
+        remediation: |-
+          Kubernetes 提供的替代机制，例如使用 OIDC，应该取代客户端证书。异常此设置是特定于站点的。可以在“配置创建的集群以将 UAA 设置为 OIDC 提供者”的“UAA”部分中设置。
         scored: false
 
   - id: 3.2
-    text: "Logging"
+    text: "日志记录"
     checks:
       - id: 3.2.1
-        text: "Ensure that a minimal audit policy is created"
+        text: "确保创建一个最小化的审计策略。"
         audit: ps -ef | grep kube-apiserver | grep -v tini | grep -- "--audit-policy-file="
         tests:
           test_items:
             - flag: "--audit-policy-file"
-        remediation: |
-          Create an audit policy file for your cluster.
+        remediation: |-
+          为您的集群创建一个审计策略文件。
         scored: true
 
       - id: 3.2.2
-        text: "Ensure that the audit policy covers key security concerns"
+        text: "确保审计策略涵盖关键的安全问题。"
         audit: |
           diff /var/vcap/jobs/kube-apiserver/config/audit_policy.yml \ <(echo "--- apiVersion: audit.k8s.io/v1beta1 kind:
           Policy rules: - level: None resources: - group: '' resources: - endpoints - services - services/status users: -
@@ -61,7 +56,6 @@ groups:
           metrics.k8s.io - group: networking.k8s.io - group: policy - group: rbac.authorization.k8s.io - group:
           settings.k8s.io - group: storage.k8s.io - level: Metadata omitStages: - RequestReceived ")
         type: "manual"
-        remediation: |
-          Consider modification of the audit policy in use on the cluster to include these items, at a
-          minimum.
+        remediation: |-
+          考虑修改集群上正在使用的审计策略，至少包括这些条目。
         scored: false

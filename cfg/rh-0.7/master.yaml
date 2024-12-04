@@ -1,43 +1,36 @@
----
 controls:
 version: "rh-0.7"
 id: 1
-text: "Securing the OpenShift Master"
+text: "保护 OpenShift Master 的安全。"
 type: "master"
 groups:
 
   - id: 1
-    text: "Protecting the API Server"
+    text: "保护 API 服务器"
     checks:
       - id: 1.1
-        text: "Maintain default behavior for anonymous access"
+        text: "保持匿名访问的默认行为。"
         type: "skip"
         scored: true
 
       - id: 1.2
-        text: "Verify that the basic-auth-file method is not enabled"
+        text: "验证 basic-auth-file 方法未启用。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.apiServerArguments.basic-auth-file}"
               set: false
-        remediation: |
-          Edit the kubernetes master config file /etc/origin/master/master-config.yaml and
-          remove the basic-auth-file entry.
-
-          kubernetesMasterConfig:
-            apiServerArguments:
-               basic-auth-file:
-                 - /path/to/any/file
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，并移除 basic-auth-file 条目。kubernetesMasterConfig:  apiServerArguments:    basic-auth-file:      - /path/to/any/file
         scored: true
 
       - id: 1.3
-        text: "Insecure Tokens"
+        text: "不安全的令牌"
         type: "skip"
         scored: true
 
       - id: 1.4
-        text: "Secure communications between the API server and master nodes"
+        text: "API服务器和主节点之间的安全通信"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: and
@@ -59,53 +52,34 @@ groups:
               compare:
                 op: eq
                 value: "10250"
-        remediation: |
-          Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-          and change it to match the below.
-
-          kubeletClientInfo:
-            ca: ca-bundle.crt
-            certFile: master.kubelet-client.crt
-            keyFile: master.kubelet-client.key
-            port: 10250
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，并将其更改为如下所示。kubeletClientInfo:  ca: ca-bundle.crt  certFile: master.kubelet-client.crt  keyFile: master.kubelet-client.key  port: 10250
         scored: true
 
       - id: 1.5
-        text: "Prevent insecure bindings"
+        text: "防止不安全的绑定"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.insecure-bind-address}"
               set: false
-        remediation: |
-          Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-          and remove the insecure-bind-address entry.
-
-          kubernetesMasterConfig:
-            apiServerArguments:
-               insecure-bind-address:
-               - 127.0.0.1
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，并删除 insecure-bind-address 条目。kubernetesMasterConfig:  apiServerArguments:    insecure-bind-address:    - 127.0.0.1
         scored: true
 
       - id: 1.6
-        text: "Prevent insecure port access"
+        text: "防止不安全的端口访问。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.apiServerArguments.insecure-port}"
               set: false
-        remediation: |
-         Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-         and remove the insecure-port entry.
-
-         kubernetesMasterConfig:
-           apiServerArguments:
-             insecure-port:
-             - 0
+        remediation: |-
+          编辑 Kubernetes 主配置文件 /etc/origin/master/master-config.yaml，并移除 insecure-port 条目。kubernetesMasterConfig:  apiServerArguments:    insecure-port:    - 0
         scored: true
 
       - id: 1.7
-        text: "Use Secure Ports for API Server Traffic"
+        text: "使用安全端口进行 API 服务器流量传输。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: or
@@ -116,24 +90,17 @@ groups:
               compare:
                 op: noteq
                 value: "0"
-        remediation: |
-         Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-         and either remove the secure-port parameter or set it to a different (non-zero)
-         desired port.
-
-         kubernetesMasterConfig:
-           apiServerArguments:
-             secure-port:
-             - 8443
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，要么删除 secure-port 参数，要么将其设置为不同的（非零）端口。kubernetesMasterConfig:  apiServerArguments:    secure-port:    - 8443
         scored: true
 
       - id: 1.8
-        text: "Do not expose API server profiling data"
+        text: "不要暴露 API 服务器的性能分析数据。"
         type: "skip"
         scored: true
 
       - id: 1.9
-        text: "Verify repair-malformed-updates argument for API compatibility"
+        text: "验证 repair-malformed-updates 参数以确保 API 兼容性。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: or
@@ -144,31 +111,23 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-         Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-         and remove the repair-malformed-updates entry or set repair-malformed-updates=true.
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，删除 repair-malformed-updates 条目或设置 repair-malformed-updates=true。
         scored: true
 
       - id: 1.10
-        text: "Verify that the AlwaysAdmit admission controller is disabled"
+        text: "验证 AlwaysAdmit 准入控制器是否已禁用。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.AlwaysAdmit}"
               set: false
-        remediation: |
-          Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-          and remove the entry below.
-
-          AlwaysAdmit:
-            configuration:
-              kind: DefaultAdmissionConfig
-              apiVersion: v1
-              disable: false
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，并删除以下条目。AlwaysAdmit:  configuration:    kind: DefaultAdmissionConfig    apiVersion: v1    disable: false
         scored: true
 
       - id: 1.11
-        text: "Manage the AlwaysPullImages admission controller"
+        text: "管理 AlwaysPullImages 准入控制器。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -176,49 +135,33 @@ groups:
               compare:
                 op: eq
                 value: "false"
-        remediation: |
-          Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-          and add the entry below.
-
-          admissionConfig:
-            pluginConfig:
-              AlwaysPullImages:
-                configuration:
-                  kind: DefaultAdmissionConfig
-                  apiVersion: v1
-                  disable: false
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，并添加如下条目。admissionConfig:  pluginConfig:    AlwaysPullImages:      configuration:        kind: DefaultAdmissionConfig        apiVersion: v1        disable: false
         scored: true
 
       - id: 1.12
-        text: "Use Security Context Constraints instead of DenyEscalatingExec admission"
+        text: "使用安全上下文约束（Security Context Constraints）而不是 DenyEscalatingExec 准入控制。"
         type: "skip"
         scored: true
 
       - id: 1.13
-        text: "Use Security Context Constraints instead of the SecurityContextDeny admission controller"
+        text: "使用 Security Context Constraints 替代 SecurityContextDeny 准入控制器。"
         type: "skip"
         scored: true
 
       - id: 1.14
-        text: "Manage the NamespaceLifecycle admission controller"
+        text: "管理 NamespaceLifecycle 准入控制器。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.NamespaceLifecycle}"
               set: false
-        remediation: |
-          Edit the kubernetes master config file /etc/origin/master/master-config.yaml
-          and remove the following entry.
-
-          NamespaceLifecycle:
-            configuration:
-              kind: DefaultAdmissionConfig
-              apiVersion: v1
-              disable: true
+        remediation: |-
+          编辑 Kubernetes 主节点配置文件 /etc/origin/master/master-config.yaml，并移除以下条目。NamespaceLifecycle:  configuration:    kind: DefaultAdmissionConfig    apiVersion: v1    disable: true
         scored: true
 
       - id: 1.15
-        text: "Configure API server auditing - audit log file path"
+        text: "配置 API 服务器审计 - 审计日志文件路径"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -226,22 +169,12 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml, update the following entry and restart the API server.
-
-          auditConfig:
-            auditFilePath: ""/etc/origin/master/audit-ocp.log""
-            enabled: true
-            maximumFileRetentionDays: 30
-            maximumFileSizeMegabytes: 10
-            maximumRetainedFiles: 10
-
-          Make the same changes in the inventory/ansible variables so the changes are not
-          lost when an upgrade occurs.
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，更新以下内容，并重新启动 API 服务器。auditConfig:  auditFilePath: ""/etc/origin/master/audit-ocp.log""  enabled: true  maximumFileRetentionDays: 30  maximumFileSizeMegabytes: 10  maximumRetainedFiles: 10在 inventory/ansible 变量中做相同的更改，以确保在升级时不会丢失这些更改。
         scored: true
 
       - id: 1.16
-        text: "Configure API server auditing - audit log retention"
+        text: "配置 API 服务器审计 - 审计日志保留"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -249,23 +182,12 @@ groups:
               compare:
                 op: gte
                 value: 30
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml,
-          update the maximumFileRetentionDays entry and restart the API server.
-
-          auditConfig:
-            auditFilePath: ""/etc/origin/master/audit-ocp.log""
-            enabled: true
-            maximumFileRetentionDays: 30
-            maximumFileSizeMegabytes: 10
-            maximumRetainedFiles: 10
-
-          Make the same changes in the inventory/ansible variables so the changes are not
-          lost when an upgrade occurs.
+        remediation: |-
+          编辑 Openshift 主配置文件 /etc/origin/master/master-config.yaml，更新 maximumFileRetentionDays 条目并重新启动 API 服务器。auditConfig:  auditFilePath: ""/etc/origin/master/audit-ocp.log""  enabled: true  maximumFileRetentionDays: 30  maximumFileSizeMegabytes: 10  maximumRetainedFiles: 10同时在 inventory/ansible 变量中进行相同的更改，以确保升级时不会丢失变更。
         scored: true
 
       - id: 1.17
-        text: "Configure API server auditing - audit log backup retention"
+        text: "配置 API 服务器审计 - 审计日志备份保留时间"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -273,23 +195,12 @@ groups:
               compare:
                 op: eq
                 value: "10"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml, update the maximumRetainedFiles entry,
-          set enabled to true and restart the API server.
-
-          auditConfig:
-            auditFilePath: ""/etc/origin/master/audit-ocp.log""
-            enabled: true
-            maximumFileRetentionDays: 30
-            maximumFileSizeMegabytes: 10
-            maximumRetainedFiles: 10
-
-          Make the same changes in the inventory/ansible variables so the changes are not
-          lost when an upgrade occurs.
+        remediation: |-
+          编辑 Openshift 主控制平面配置文件 /etc/origin/master/master-config.yaml，更新 maximumRetainedFiles 配置项，将 enabled 设置为 true 并重启 API 服务器。```yamlauditConfig:  auditFilePath: ""/etc/origin/master/audit-ocp.log""  enabled: true  maximumFileRetentionDays: 30  maximumFileSizeMegabytes: 10  maximumRetainedFiles: 10```在 inventory/ansible 变量中进行相同的更改，以便在升级时不会丢失更改。
         scored: true
 
       - id: 1.18
-        text: "Configure audit log file size"
+        text: "配置审计日志文件大小。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -297,74 +208,45 @@ groups:
               compare:
                 op: eq
                 value: "30"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml, update the maximumFileSizeMegabytes entry,
-          set enabled to true and restart the API server.
-
-          auditConfig:
-            auditFilePath: ""/etc/origin/master/audit-ocp.log""
-            enabled: true
-            maximumFileRetentionDays: 30
-            maximumFileSizeMegabytes: 10
-            maximumRetainedFiles: 10
-
-          Make the same changes in the inventory/ansible variables so the changes are not
-          lost when an upgrade occurs.
+        remediation: |-
+          编辑 Openshift 主控制平面配置文件 /etc/origin/master/master-config.yaml，更新 maximumFileSizeMegabytes 条目，将 enabled 设置为 true，然后重新启动 API 服务器。auditConfig:  auditFilePath: ""/etc/origin/master/audit-ocp.log""  enabled: true  maximumFileRetentionDays: 30  maximumFileSizeMegabytes: 10  maximumRetainedFiles: 10同时在 inventory/ansible 变量中做出相同的更改，以确保升级时不会丢失这些更改。
         scored: true
 
       - id: 1.19
-        text: "Verify that authorization-mode is not set to AlwaysAllow"
+        text: "验证 authorization-mode 未设置为 AlwaysAllow。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.apiServerArguments.authorization-mode}"
               set: false
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and remove the authorization-mode
-          entry.
-
-          kubernetesMasterConfig:
-            apiServerArguments:
-               authorization-mode:
-                 - AllowAll
+        remediation: |-
+          编辑 Openshift 主控制平面配置文件 /etc/origin/master/master-config.yaml，并移除 authorization-mode 的配置项。kubernetesMasterConfig:  apiServerArguments:    authorization-mode:      - AllowAll
         scored: true
 
       - id: 1.20
-        text: "Verify that the token-auth-file flag is not set"
+        text: "验证 token-auth-file 标志未被设置。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.apiServerArguments.token-auth-file}"
               set: false
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and remove the token-auth-file
-          entry under apiserverArguments section.
-
-          kubernetesMasterConfig:
-            apiServerArguments:
-               token-auth-file:
-                 - /path/to/file
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，并在 apiserverArguments 部分下移除 token-auth-file 条目。kubernetesMasterConfig:  apiServerArguments:    - /path/to/file
         scored: true
 
       - id: 1.21
-        text: "Verify the API server certificate authority"
+        text: "验证 API 服务器证书颁发机构。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.apiServerArguments.kubelet-certificat-authority}"
               set: false
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and remove the following
-          configuration under apiserverArguments section.
-
-          kubernetesMasterConfig:
-            apiServerArguments:
-               kubelet-certificat-authority:
-                 - /path/to/ca
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，删除在 apiserverArguments 部分下面的以下配置。kubernetesMasterConfig:  apiServerArguments:    kubelet-certificat-authority:      - /path/to/ca
         scored: true
 
       - id: 1.22
-        text: "Verify the API server client certificate and client key"
+        text: "验证 API 服务器的客户端证书和客户端密钥。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: and
@@ -377,29 +259,22 @@ groups:
               compare:
                 op: eq
                 value: "master.kubelet-client.crt"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and add the following
-          configuration under kubeletClientInfo
-
-          kubeletClientInfo:
-            ca: ca-bundle.crt
-            certFile: master.kubelet-client.crt
-            keyFile: master.kubelet-client.key
-            port: 10250
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，并在 kubeletClientInfo 下添加以下配置：kubeletClientInfo:  ca: ca-bundle.crt  certFile: master.kubelet-client.crt  keyFile: master.kubelet-client.key  port: 10250
         scored: true
 
       - id: 1.23
-        text: "Verify that the service account lookup flag is not set"
+        text: "验证服务帐户查找标志未设置。"
         type: "skip"
         scored: true
 
       - id: 1.24
-        text: "Verify the PodSecurityPolicy is disabled to ensure use of SecurityContextConstraints"
+        text: "验证 PodSecurityPolicy 已禁用，以确保使用 SecurityContextConstraints。"
         type: "skip"
         scored: true
 
       - id: 1.25
-        text: "Verify that the service account key file argument is not set"
+        text: "验证服务账号密钥文件参数未设置。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: and
@@ -412,32 +287,12 @@ groups:
               compare:
                 op: has
                 value: "serviceaccounts.public.key"
-        remediation: |
-          OpenShift API server does not use the service-account-key-file argument.
-          Even if value is set in master-config.yaml, it will not be used to verify
-          service account tokens, as it is in upstream Kubernetes. The ServiceAccount
-          token authenticator is configured with serviceAccountConfig.publicKeyFiles in
-          the master-config.yaml. OpenShift does not reuse the apiserver TLS key.
-
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set the privateKeyFile
-          and publicKeyFile configuration under serviceAccountConfig.
-
-            serviceAccountConfig:
-              limitSecretReferences: false
-              managedNames:
-                - default
-                - builder
-                - deployer
-              masterCA: ca-bundle.crt
-              privateKeyFile: serviceaccounts.private.key
-              publicKeyFiles:
-                - serviceaccounts.public.key
-
-          Verify that privateKeyFile and publicKeyFile exist and set.
+        remediation: |-
+          OpenShift API Server 不使用 service-account-key-file 参数。即使在 master-config.yaml 中设置了该值，也不会用于验证服务账户令牌，这与上游 Kubernetes 不同。ServiceAccount 令牌验证器在 master-config.yaml 中通过 serviceAccountConfig.publicKeyFiles 配置。OpenShift 不会重用 apiserver TLS 密钥。编辑 Openshift 主配置文件 /etc/origin/master/master-config.yaml，并在 serviceAccountConfig 下设置 privateKeyFile 和 publicKeyFile 配置。serviceAccountConfig:   limitSecretReferences: false   managedNames:     - default     - builder     - deployer   masterCA: ca-bundle.crt   privateKeyFile: serviceaccounts.private.key   publicKeyFiles:     - serviceaccounts.public.key验证 privateKeyFile 和 publicKeyFile 是否存在并已设置。
         scored: true
 
       - id: 1.26
-        text: "Verify the certificate and key used for communication with etcd"
+        text: "验证用于与 etcd 通信的证书和密钥。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: and
@@ -450,18 +305,12 @@ groups:
               compare:
                 op: eq
                 value: "master.etcd-client.key"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set keyFile and certFile
-          under etcdClientInfo like below.
-
-            etcdClientInfo:
-              ca: master.etcd-ca.crt
-              certFile: master.etcd-client.crt
-              keyFile: master.etcd-client.key
+        remediation: |-
+          编辑 Openshift 主控制平面配置文件 /etc/origin/master/master-config.yaml，并按照以下方式设置 etcdClientInfo 中的 keyFile 和 certFile。  etcdClientInfo:    ca: master.etcd-ca.crt    certFile: master.etcd-client.crt    keyFile: master.etcd-client.key
         scored: true
 
       - id: 1.27
-        text: "Verify that the ServiceAccount admission controller is enabled"
+        text: "验证 ServiceAccount 准入控制器是否已启用。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: or
@@ -472,19 +321,12 @@ groups:
               compare:
                 op: eq
                 value: "false"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and enable ServiceAccount
-          admission control policy.
-
-            ServiceAccount:
-              configuration:
-                kind: DefaultAdmissionConfig
-                apiVersion: v1
-                disable: false
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，并启用 ServiceAccount 准入控制策略。ServiceAccount:  configuration:    kind: DefaultAdmissionConfig    apiVersion: v1    disable: false
         scored: true
 
       - id: 1.28
-        text: "Verify the certificate and key used to encrypt API server traffic"
+        text: "验证用于加密 API 服务器流量的证书和密钥。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: and
@@ -497,41 +339,23 @@ groups:
               compare:
                 op: eq
                 value: "master.server.key"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set keyFile and certFile under servingInfo.
-
-            servingInfo:
-              bindAddress: 0.0.0.0:8443
-              bindNetwork: tcp4
-              certFile: master.server.crt
-              clientCA: ca.crt
-              keyFile: master.server.key
-              maxRequestsInFlight: 500
-              requestTimeoutSeconds: 3600
+        remediation: |-
+          编辑 Openshift 主配置文件 /etc/origin/master/master-config.yaml，并在 servingInfo 下设置 keyFile 和 certFile。  servingInfo:    bindAddress: 0.0.0.0:8443    bindNetwork: tcp4    certFile: master.server.crt    clientCA: ca.crt    keyFile: master.server.key    maxRequestsInFlight: 500    requestTimeoutSeconds: 3600
         scored: true
 
       - id: 1.29
-        text: "Verify that the --client-ca-file argument is not set"
+        text: "验证 --client-ca-file 参数未设置。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.servingInfo.clientCA}"
               set: false
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set clientCA under servingInfo.
-
-            servingInfo:
-              bindAddress: 0.0.0.0:8443
-              bindNetwork: tcp4
-              certFile: master.server.crt
-              clientCA: ca.crt
-              keyFile: master.server.key
-              maxRequestsInFlight: 500
-              requestTimeoutSeconds: 3600
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，将 clientCA 设置在 servingInfo 下。  servingInfo:    bindAddress: 0.0.0.0:8443    bindNetwork: tcp4    certFile: master.server.crt    clientCA: ca.crt    keyFile: master.server.key    maxRequestsInFlight: 500    requestTimeoutSeconds: 3600
         scored: true
 
       - id: 1.30
-        text: "Verify the CA used for communication with etcd"
+        text: "验证与 etcd 通信所使用的 CA。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -539,22 +363,17 @@ groups:
               compare:
                 op: eq
                 value: "master.etcd-ca.crt"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set ca under etcdClientInfo.
-
-            etcdClientInfo:
-              ca: master.etcd-ca.crt
-              certFile: master.etcd-client.crt
-              keyFile: master.etcd-client.key
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，并在 etcdClientInfo 下设置 ca。  etcdClientInfo:    ca: master.etcd-ca.crt    certFile: master.etcd-client.crt    keyFile: master.etcd-client.key
         scored: true
 
       - id: 1.31
-        text: "Verify that the authorization-mode argument is not set"
+        text: "验证 authorization-mode 参数未设置。"
         type: "skip"
         scored: true
 
       - id: 1.32
-        text: "Verify that the NodeRestriction admission controller is enabled"
+        text: "验证 NodeRestriction 准入控制器是否已启用。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: or
@@ -565,31 +384,25 @@ groups:
               compare:
                 op: eq
                 value: "false"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and enable NodeRestriction ca under etcdClientInfo.
-
-            NodeRestriction:
-              configuration:
-                kind: DefaultAdmissionConfig
-                apiVersion: v1
-                disable: false
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml 并在 etcdClientInfo 下启用 NodeRestriction。 NodeRestriction:  configuration:    kind: DefaultAdmissionConfig    apiVersion: v1    disable: false
         scored: true
 
       - id: 1.33
-        text: "Configure encryption of data at rest in etcd datastore"
+        text: "配置 etcd 数据存储中的数据静态加密。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
             - path: "{.kubernetesMasterConfig.apiServerArguments.experimental-encryption-provider-config}"
-        remediation: |
-          Follow the instructions in the documentation to configure encryption.
-          https://docs.openshift.com/container-platform/3.10/admin_guide/encrypting_data.html
+        remediation: |-
+          请按照文档中的说明配置加密功能。https://docs.openshift.com/container-platform/3.10/admin_guide/encrypting_data.html
         scored: true
 
       - id: 1.34
-        text: "Set the encryption provider to aescbc for etcd data at rest"
+        text: "将 etcd 数据的加密提供程序设置为 aescbc 以保护数据安全。"
 
-        audit_config: "grep -A1 experimental-encryption-provider-config /etc/origin/master/master-config.yaml | sed -n '2p' | awk '{ print $2 }' | xargs cat"
+        audit_config: "grep -A1 experimental-encryption-provider-config /etc/origin/master/master-config.yaml
+          | sed -n '2p' | awk '{ print $2 }' | xargs cat"
         tests:
           bin_op: and
           test_items:
@@ -601,13 +414,12 @@ groups:
               compare:
                 op: has
                 value: "name"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set aescbc as the first provider in encryption provider config.
-          See https://docs.openshift.com/container-platform/3.10/admin_guide/encrypting_data.html.
+        remediation: |-
+          编辑 Openshift 主控制平面配置文件 /etc/origin/master/master-config.yaml，并在加密提供程序配置中将 aescbc 设置为第一个提供程序。参见 https://docs.openshift.com/container-platform/3.10/admin_guide/encrypting_data.html.
         scored: true
 
       - id: 1.35
-        text: "Enable the EventRateLimit plugin"
+        text: "启用 EventRateLimit 插件。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -615,13 +427,12 @@ groups:
               compare:
                 op: eq
                 value: "false"
-        remediation: |
-          Follow the documentation to enable the EventRateLimit plugin.
-          https://docs.openshift.com/container-platform/3.10/architecture/additional_concepts/admission_controllers.html#admission-controllers-general-admission-rules
+        remediation: |-
+          按照文档启用 EventRateLimit 插件。链接: https://docs.openshift.com/container-platform/3.10/architecture/additional_concepts/admission_controllers.html#admission-controllers-general-admission-rules
         scored: true
 
       - id: 1.36
-        text: "Configure advanced auditing"
+        text: "配置高级审计."
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: or
@@ -632,40 +443,34 @@ groups:
                 value: "true"
             - path: "{.kubernetesMasterConfig.apiServerArguments.feature-gates.AdvancedAuditing}"
               set: false
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and enable AdvancedAuditing,
-
-          kubernetesMasterConfig:
-            apiServerArguments:
-              feature-gates:
-                - AdvancedAuditing=true
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，并启用 AdvancedAuditing，kubernetesMasterConfig:  apiServerArguments:    feature-gates:      - AdvancedAuditing=true
         scored: true
 
       # Review 1.1.37 in Aquasec shared doc, the tests are net zero.
       - id: 1.37
-        text: "Adjust the request timeout argument for your cluster resources"
+        text: "调整集群资源的请求超时参数。"
         audit: "grep request-timeout /etc/origin/master/master-config.yaml"
         type: "manual"
-        remediation: |
-          [Manual test]
-          change the request-timeout value in the  /etc/origin/master/master-config.yaml
+        remediation: |-
+          【手动测试】修改 /etc/origin/master/master-config.yaml 中的 request-timeout 值。
         scored: true
 
 
   - id: 2
-    text: "Scheduler"
+    text: "调度器"
     checks:
       - id: 2.1
-        text: "Verify that Scheduler profiling is not exposed to the web"
+        text: "验证调度程序性能分析不会暴露在 web 上。"
         type: "skip"
         scored: true
 
 
   - id: 3
-    text: "Controller Manager"
+    text: "控制器管理器"
     checks:
       - id: 3.1
-        text: "Adjust the terminated-pod-gc-threshold argument as needed"
+        text: "根据需要调整 terminated-pod-gc-threshold 参数。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -673,24 +478,17 @@ groups:
               compare:
                 op: eq
                 value: "12500"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml  and enable terminated-pod-gc-threshold.
-
-            kubernetesMasterConfig:
-              controllerArguments:
-                 terminated-pod-gc-threshold:
-                 - true
-
-          Enabling the "terminated-pod-gc-threshold" settings is optional.
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml，并启用 terminated-pod-gc-threshold。kubernetesMasterConfig:  controllerArguments:    terminated-pod-gc-threshold:    - true启用 "terminated-pod-gc-threshold" 设置是可选的。
         scored: true
 
       - id: 3.2
-        text: "Verify that Controller profiling is not exposed to the web"
+        text: "验证控制器剖析未暴露到 Web。"
         type: "skip"
         scored: true
 
       - id: 3.3
-        text: "Verify that the --use-service-account-credentials argument is set to true"
+        text: "验证 --use-service-account-credentials 参数是否设置为 true。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: or
@@ -701,19 +499,13 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and set use-service-account-credentials
-          to true under controllerArguments section.
-
-          kubernetesMasterConfig:
-            controllerArguments:
-               use-service-account-credentials:
-                 - true
+        remediation: |-
+          编辑 Openshift 主配置文件 /etc/origin/master/master-config.yaml，在 controllerArguments 部分下设置 use-service-account-credentials 为 true。kubernetesMasterConfig:  controllerArguments:    use-service-account-credentials:      - true
         scored: true
 
 
       - id: 3.4
-        text: "Verify that the --service-account-private-key-file argument is set as appropriate"
+        text: "验证 --service-account-private-key-file 参数是否设置正确。"
         audit: |
           grep -A9 serviceAccountConfig /etc/origin/master/master-config.yaml | grep privateKeyFile;
           grep -A2 service-account-private-key-file /etc/origin/master/master-config.yaml
@@ -728,13 +520,13 @@ groups:
                 value: "serviceaccounts.private.key"
             - flag: "service-account-private-key-file"
               set: false
-        remediation: |
-          Edit the Openshift master config file /etc/origin/master/master-config.yaml and remove service-account-private-key-file
+        remediation: |-
+          编辑 Openshift 主节点配置文件 /etc/origin/master/master-config.yaml 并移除 service-account-private-key-file。
         scored: true
 
 
       - id: 3.5
-        text: "Verify that the --root-ca-file argument is set as appropriate"
+        text: "验证 --root-ca-file 参数是否设置正确。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           bin_op: and
@@ -747,22 +539,17 @@ groups:
               compare:
                 op: eq
                 value: "ca-bundle.crt"
-        remediation: |
-          Reset to OpenShift defaults OpenShift starts kube-controller-manager with
-          root-ca-file=/etc/origin/master/ca-bundle.crt by default. OpenShift Advanced
-          Installation creates this certificate authority and configuration without any
-          configuration required.
-
-          https://docs.openshift.com/container-platform/3.10/admin_guide/service_accounts.html"
+        remediation: |-
+          重置为 OpenShift 默认值。OpenShift 默认情况下使用 root-ca-file=/etc/origin/master/ca-bundle.crt 启动 kube-controller-manager。OpenShift 高级安装会在不需要任何配置的情况下创建该证书颁发机构和配置。参考链接：https://docs.openshift.com/container-platform/3.10/admin_guide/service_accounts.html"
         scored: true
 
       - id: 3.6
-        text: "Verify that Security Context Constraints are applied to Your Pods and Containers"
+        text: "验证安全上下文约束是否应用于您的 Pod 和容器。"
         type: "skip"
         scored: false
 
       - id: 3.7
-        text: "Manage certificate rotation"
+        text: "管理证书轮换。"
         audit_config: "cat /etc/origin/master/master-config.yaml"
         tests:
           test_items:
@@ -770,18 +557,16 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-          If you decide not to enable the RotateKubeletServerCertificate feature,
-          be sure to use the Ansible playbooks provided with the OpenShift installer to
-          automate re-deploying certificates.
+        remediation: |-
+          如果决定不启用 RotateKubeletServerCertificate 功能，请务必使用 OpenShift 安装程序提供的 Ansible playbook 来自动化重新部署证书。
         scored: true
 
 
   - id: 4
-    text: "Configuration Files"
+    text: "配置文件"
     checks:
       - id: 4.1
-        text: "Verify the OpenShift default permissions for the API server pod specification file"
+        text: "验证 OpenShift API 服务器 pod 规范文件的默认权限。"
         audit: "stat -c permissions=%a /etc/origin/node/pods/apiserver.yaml"
         tests:
           test_items:
@@ -789,26 +574,22 @@ groups:
               compare:
                 op: bitmask
                 value: "600"
-        remediation: |
-          Run the below command.
-
-          chmod 600 /etc/origin/node/pods/apiserver.yaml
+        remediation: |-
+          运行以下命令。chmod 600 /etc/origin/node/pods/apiserver.yaml
         scored: true
 
       - id: 4.2
-        text: "Verify the OpenShift default file ownership for the API server pod specification file"
+        text: "验证 OpenShift API 服务器 Pod 规范文件的默认文件所有权。"
         audit: "stat -c %U:%G /etc/origin/node/pods/apiserver.yaml"
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/node/pods/apiserver.yaml
+        remediation: |-
+          在主节点上运行以下命令。chown root:root /etc/origin/node/pods/apiserver.yaml
         scored: true
 
       - id: 4.3
-        text: "Verify the OpenShift default file permissions for the controller manager pod specification file"
+        text: "验证 OpenShift 控制器管理器 Pod 规范文件的默认文件权限。"
         audit: "stat -c permissions=%a /etc/origin/node/pods/controller.yaml"
         tests:
           test_items:
@@ -816,26 +597,22 @@ groups:
               compare:
                 op: bitmask
                 value: "600"
-        remediation: |
-          Run the below command on the master node.
-
-          chmod 600 /etc/origin/node/pods/controller.yaml
+        remediation: |-
+          在主节点上运行以下命令。chmod 600 /etc/origin/node/pods/controller.yaml
         scored: true
 
       - id: 4.4
-        text: "Verify the OpenShift default ownership for the controller manager pod specification file"
+        text: "验证 Controller Manager Pod 规范文件的 OpenShift 默认所有权。"
         audit: "stat -c %U:%G /etc/origin/node/pods/controller.yaml"
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/node/pods/controller.yaml
+        remediation: |-
+          在主节点上执行以下命令。chown root:root /etc/origin/node/pods/controller.yaml
         scored: true
 
       - id: 4.5
-        text: "Verify the OpenShift default permissions for the scheduler pod specification file"
+        text: "验证 OpenShift 调度器 Pod 规范文件的默认权限。"
         audit: "stat -c permissions=%a /etc/origin/node/pods/controller.yaml"
         tests:
           test_items:
@@ -843,26 +620,22 @@ groups:
               compare:
                 op: bitmask
                 value: "600"
-        remediation: |
-          Run the below command.
-
-          chmod 600 stat -c permissions=%a /etc/origin/node/pods/controller.yaml
+        remediation: |-
+          运行以下命令。chmod 600 stat -c permissions=%a /etc/origin/node/pods/controller.yaml
         scored: true
 
       - id: 4.6
-        text: "Verify the scheduler pod specification file ownership set by OpenShift"
+        text: "验证 OpenShift 设置的调度器 Pod 规范文件的所有权。"
         audit: "stat -c %U:%G /etc/origin/node/pods/controller.yaml"
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/node/pods/controller.yaml
+        remediation: |-
+          在主节点上运行以下命令。chown root:root /etc/origin/node/pods/controller.yaml
         scored: true
 
       - id: 4.7
-        text: "Verify the OpenShift default etcd pod specification file permissions"
+        text: "验证 OpenShift 默认的 etcd pod 规范文件权限。"
         audit: "stat -c permissions=%a /etc/origin/node/pods/etcd.yaml"
         tests:
           test_items:
@@ -870,26 +643,22 @@ groups:
               compare:
                 op: bitmask
                 value: "600"
-        remediation: |
-          Run the below command.
-
-          chmod 600 /etc/origin/node/pods/etcd.yaml
+        remediation: |-
+          运行以下命令。chmod 600 /etc/origin/node/pods/etcd.yaml
         scored: true
 
       - id: 4.8
-        text: "Verify the OpenShift default etcd pod specification file ownership"
+        text: "验证 OpenShift 默认的 etcd pod 规范文件的所有权。"
         audit: "stat -c %U:%G /etc/origin/node/pods/etcd.yaml"
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/node/pods/etcd.yaml
+        remediation: |-
+          在主节点上运行下面的命令。chown root:root /etc/origin/node/pods/etcd.yaml
         scored: true
 
       - id: 4.9
-        text: "Verify the default OpenShift Container Network Interface file permissions"
+        text: "验证默认的 OpenShift 容器网络接口文件权限。"
         audit: "stat -c permissions=%a /etc/origin/openvswitch/ /etc/cni/net.d/"
         use_multiple_values: true
         tests:
@@ -898,27 +667,23 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command.
-
-          chmod 644 -R /etc/origin/openvswitch/ /etc/cni/net.d/
+        remediation: |-
+          运行如下命令。 chmod 644 -R /etc/origin/openvswitch/ /etc/cni/net.d/
         scored: true
 
       - id: 4.10
-        text: "Verify the default OpenShift Container Network Interface file ownership"
+        text: "验证默认的 OpenShift 容器网络接口文件的所有权。"
         audit: "stat -c %U:%G /etc/origin/openvswitch/ /etc/cni/net.d/"
         use_multiple_values: true
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/openvswitch/ /etc/cni/net.d/
+        remediation: |-
+          在主节点上运行以下命令。chown root:root /etc/origin/openvswitch/ /etc/cni/net.d/
         scored: true
 
       - id: 4.11
-        text: "Verify the default OpenShift etcd data directory permissions"
+        text: "验证默认的 OpenShift etcd 数据目录权限。"
         audit: "stat -c permissions=%a /var/lib/etcd"
         tests:
           test_items:
@@ -926,28 +691,22 @@ groups:
               compare:
                 op: bitmask
                 value: "700"
-        remediation: |
-          On the etcd server node, get the etcd data directory, passed as an argument --data-dir ,
-          from the below command:
-          ps -ef | grep etcd
-          Run the below command (based on the etcd data directory found above). For example,
-          chmod 700 /var/lib/etcd
+        remediation: |-
+          在 etcd 服务器节点上，通过以下命令获取 etcd 数据目录，作为参数 --data-dir 传递：ps -ef | grep etcd根据上面找到的 etcd 数据目录运行以下命令。例如，chmod 700 /var/lib/etcd
         scored: true
 
       - id: 4.12
-        text: "Verify the default OpenShift etcd data directory ownership"
+        text: "验证默认的 OpenShift etcd 数据目录所有权。"
         audit: "stat -c %U:%G /var/lib/etcd"
         tests:
           test_items:
             - flag: "etcd:etcd"
-        remediation: |
-          Run the below command on the master node.
-
-          chown etcd:etcd /var/lib/etcd
+        remediation: |-
+          在主节点上运行以下命令。chown etcd:etcd /var/lib/etcd
         scored: true
 
       - id: 4.13
-        text: "Verify the default OpenShift admin.conf file permissions"
+        text: "验证默认的 OpenShift admin.conf 文件权限。"
         audit: "stat -c permissions=%a /etc/origin/master/admin.kubeconfig"
         tests:
           test_items:
@@ -955,26 +714,22 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command.
-
-          chmod 644 /etc/origin/master/admin.kubeconfig"
+        remediation: |-
+          运行以下命令。chmod 644 /etc/origin/master/admin.kubeconfig"
         scored: true
 
       - id: 4.14
-        text: "Verify the default OpenShift admin.conf file ownership"
+        text: "验证默认的 OpenShift admin.conf 文件所有权。"
         audit: "stat -c %U:%G /etc/origin/master/admin.kubeconfig"
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/master/admin.kubeconfig
+        remediation: |-
+          在主节点上运行以下命令。chown root:root /etc/origin/master/admin.kubeconfig
         scored: true
 
       - id: 4.15
-        text: "Verify the default OpenShift scheduler.conf file permissions"
+        text: "验证默认的 OpenShift scheduler.conf 文件权限。"
         audit: "stat -c permissions=%a /etc/origin/master/openshift-master.kubeconfig"
         tests:
           test_items:
@@ -982,26 +737,22 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command.
-
-          chmod 644 /etc/origin/master/openshift-master.kubeconfig
+        remediation: |-
+          运行以下命令。chmod 644 /etc/origin/master/openshift-master.kubeconfig
         scored: true
 
       - id: 4.16
-        text: "Verify the default OpenShift scheduler.conf file ownership"
+        text: "验证默认的 OpenShift scheduler.conf 文件所有权。"
         audit: "stat -c %U:%G /etc/origin/master/openshift-master.kubeconfig"
         tests:
           test_items:
             - flag: "root:root"
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/master/openshift-master.kubeconfig
+        remediation: |-
+          在主节点上运行以下命令。chown root:root /etc/origin/master/openshift-master.kubeconfig
         scored: true
 
       - id: 4.17
-        text: "Verify the default Openshift controller-manager.conf file permissions"
+        text: "验证默认的 Openshift controller-manager.conf 文件权限。"
         audit: "stat -c permissions=%a /etc/origin/master/openshift-master.kubeconfig"
         tests:
           test_items:
@@ -1009,14 +760,12 @@ groups:
               compare:
                 op: bitmask
                 value: "644"
-        remediation: |
-          Run the below command.
-
-          chmod 644 /etc/origin/master/openshift-master.kubeconfig
+        remediation: |-
+          运行以下命令。chmod 644 /etc/origin/master/openshift-master.kubeconfig
         scored: true
 
       - id: 4.18
-        text: "Ensure that the controller-manager.conf file ownership is set to root:root (Scored)"
+        text: "确保 controller-manager.conf 文件的所有权设置为 root:root（已评分）。"
         audit: "stat -c %U:%G /etc/origin/master/openshift-master.kubeconfig"
         tests:
           test_items:
@@ -1025,10 +774,8 @@ groups:
                 op: eq
                 value: "root:root"
               set: true
-        remediation: |
-          Run the below command on the master node.
-
-          chown root:root /etc/origin/master/openshift-master.kubeconfig
+        remediation: |-
+          在主节点上运行以下命令。```chown root:root /etc/origin/master/openshift-master.kubeconfig```
         scored: true
 
 
@@ -1036,8 +783,11 @@ groups:
     text: "Etcd"
     checks:
       - id: 5.1
-        text: "Verify the default OpenShift cert-file and key-file configuration"
-        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_CERT_FILE=/etc/etcd/server.crt /proc/1/environ; /usr/local/bin/master-exec etcd etcd grep ETCD_KEY_FILE=/etc/etcd/server.key /proc/1/environ; grep ETCD_CERT_FILE=/etc/etcd/server.crt /etc/etcd/etcd.conf; grep ETCD_KEY_FILE=/etc/etcd/server.key /etc/etcd/etcd.conf'"
+        text: "验证默认的 OpenShift cert-file 和 key-file 配置。"
+        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_CERT_FILE=/etc/etcd/server.crt
+          /proc/1/environ; /usr/local/bin/master-exec etcd etcd grep ETCD_KEY_FILE=/etc/etcd/server.key
+          /proc/1/environ; grep ETCD_CERT_FILE=/etc/etcd/server.crt /etc/etcd/etcd.conf;
+          grep ETCD_KEY_FILE=/etc/etcd/server.key /etc/etcd/etcd.conf'"
         tests:
           bin_op: and
           test_items:
@@ -1050,13 +800,14 @@ groups:
               compare:
                 op: eq
                 value: "/etc/etcd/server.key"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          恢复为 OpenShift 的默认配置。
         scored: true
 
       - id: 5.2
-        text: "Verify the default OpenShift setting for the client-cert-auth argument"
-        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_CLIENT_CERT_AUTH=true /proc/1/environ; grep ETCD_CLIENT_CERT_AUTH /etc/etcd/etcd.conf'"
+        text: "验证客户端证书认证参数的默认 OpenShift 设置。"
+        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_CLIENT_CERT_AUTH=true
+          /proc/1/environ; grep ETCD_CLIENT_CERT_AUTH /etc/etcd/etcd.conf'"
         tests:
           bin_op: and
           test_items:
@@ -1065,13 +816,14 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          恢复到 OpenShift 的默认配置。
         scored: true
 
       - id: 5.3
-        text: "Verify the OpenShift default values for etcd_auto_tls"
-        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_AUTO_TLS /proc/1/environ; grep ETCD_AUTO_TLS /etc/etcd/etcd.conf'"
+        text: "验证 OpenShift 中 etcd_auto_tls 的默认数值。"
+        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_AUTO_TLS
+          /proc/1/environ; grep ETCD_AUTO_TLS /etc/etcd/etcd.conf'"
         tests:
           bin_op: or
           test_items:
@@ -1079,13 +831,16 @@ groups:
               compare:
                 op: eq
                 value: "false"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          将配置重置为 OpenShift 的默认配置。
         scored: true
 
       - id: 5.4
-        text: "Verify the OpenShift default peer-cert-file and peer-key-file arguments for etcd"
-        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_PEER_CERT_FILE=/etc/etcd/peer.crt /proc/1/environ; /usr/local/bin/master-exec etcd etcd grep ETCD_PEER_KEY_FILE=/etc/etcd/peer.key /proc/1/environ; grep ETCD_PEER_CERT_FILE /etc/etcd/etcd.conf; grep ETCD_PEER_KEY_FILE /etc/etcd/etcd.conf'"
+        text: "验证 etcd 的 OpenShift 默认 peer-cert-file 和 peer-key-file 参数。"
+        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_PEER_CERT_FILE=/etc/etcd/peer.crt
+          /proc/1/environ; /usr/local/bin/master-exec etcd etcd grep ETCD_PEER_KEY_FILE=/etc/etcd/peer.key
+          /proc/1/environ; grep ETCD_PEER_CERT_FILE /etc/etcd/etcd.conf; grep ETCD_PEER_KEY_FILE
+          /etc/etcd/etcd.conf'"
         tests:
           bin_op: and
           test_items:
@@ -1098,13 +853,14 @@ groups:
               compare:
                 op: eq
                 value: "/etc/etcd/peer.key"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          将配置重置为 OpenShift 的默认配置。
         scored: true
 
       - id: 5.5
-        text: "Verify the OpenShift default configuration for the peer-client-cert-auth"
-        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_PEER_CLIENT_CERT_AUTH=true /proc/1/environ; grep ETCD_PEER_CLIENT_CERT_AUTH /etc/etcd/etcd.conf'"
+        text: "验证 OpenShift 对于 peer-client-cert-auth 的默认配置。"
+        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_PEER_CLIENT_CERT_AUTH=true
+          /proc/1/environ; grep ETCD_PEER_CLIENT_CERT_AUTH /etc/etcd/etcd.conf'"
         tests:
           bin_op: and
           test_items:
@@ -1113,196 +869,108 @@ groups:
               compare:
                 op: eq
                 value: "true"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          将配置重置为 OpenShift 的默认配置。
         scored: true
 
       - id: 5.6
-        text: "Verify the OpenShift default configuration for the peer-auto-tls argument"
-        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_PEER_AUTO_TLS /proc/1/environ; grep ETCD_PEER_AUTO_TLS /etc/etcd/etcd.conf'"
+        text: "验证 OpenShift 对于 peer-auto-tls 参数的默认配置。"
+        audit: "/bin/sh -c '/usr/local/bin/master-exec etcd etcd grep ETCD_PEER_AUTO_TLS
+          /proc/1/environ; grep ETCD_PEER_AUTO_TLS /etc/etcd/etcd.conf'"
         tests:
           test_items:
             - flag: "ETCD_PEER_AUTO_TLS"
               compare:
                 op: noteq
                 value: "true"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          重置为 OpenShift 的默认配置。
         scored: true
 
       - id: 5.7
-        text: "Optionally modify the wal-dir argument"
+        text: "可选地修改 wal-dir 参数。"
         type: "skip"
         scored: true
 
       - id: 5.8
-        text: "Optionally modify the max-wals argument"
+        text: "可选地修改 max-wals 参数。"
         type: "skip"
         scored: true
 
       - id: 5.9
-        text: "Verify the OpenShift default configuration for the etcd Certificate Authority"
-        audit: "openssl x509 -in /etc/origin/master/master.etcd-ca.crt -subject -issuer -noout | sed 's/@/ /'"
+        text: "验证 OpenShift 对 etcd 证书颁发机构的默认配置。"
+        audit: "openssl x509 -in /etc/origin/master/master.etcd-ca.crt -subject -issuer
+          -noout | sed 's/@/ /'"
         tests:
           test_items:
             - flag: "issuer= /CN=etcd-signer"
-        remediation: |
-          Reset to the OpenShift default configuration.
+        remediation: |-
+          重置为 OpenShift 默认配置。
         scored: false
 
 
   - id: 6
-    text: "General Security Primitives"
+    text: "通用安全原语"
     checks:
       - id: 6.1
-        text: "Ensure that the cluster-admin role is only used where required"
+        text: "确保仅在必要的情况下使用 cluster-admin 角色。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Review users, groups, serviceaccounts bound to cluster-admin:
-          oc get clusterrolebindings | grep cluster-admin
-
-          Review users and groups bound to cluster-admin and decide whether they require
-          such access. Consider creating least-privilege roles for users and service accounts
+        remediation: |-
+          【手动测试】查看绑定到 cluster-admin 的用户、组和serviceaccounts：oc get clusterrolebindings | grep cluster-admin审查绑定到 cluster-admin 的用户和组，并决定它们是否需要此访问权限。考虑为用户和服务帐户创建最低特权角色。
         scored: false
 
       - id: 6.2
-        text: "Verify Security Context Constraints as in use"
+        text: "验证正在使用的安全上下文约束（Security Context Constraints）。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Review Security Context Constraints:
-          oc get scc
-
-          Use OpenShift's Security Context Constraint feature, which has been contributed
-          to Kubernetes as Pod Security Policies. PSPs are still beta in Kubernetes 1.10.
-          OpenShift ships with two SCCs: restricted and privileged.
-
-          The two default SCCs will be created when the master is started. The restricted
-          SCC is granted to all authenticated users by default.
-
-           https://docs.openshift.com/container-platform/3.10/admin_guide/manage_scc.html"
+        remediation: |-
+          【手动测试】审查安全上下文约束：oc get scc使用 OpenShift 的安全上下文约束功能，该功能已经作为 Pod 安全策略被贡献给 Kubernetes。在 Kubernetes 1.10 中，PSPs 仍处于 beta 阶段。OpenShift 预装了两个 SCCs: restricted 和 privileged。这两个默认的 SCCs 将在主节点启动时被创建。默认情况下，restricted SCC 授予所有经过身份验证的用户。参考链接: https://docs.openshift.com/container-platform/3.10/admin_guide/manage_scc.html"
         scored: false
 
       - id: 6.3
-        text: "Use OpenShift projects to maintain boundaries between resources"
+        text: "使用 OpenShift 项目来维护资源之间的边界。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Review projects:
-          oc get projects
+        remediation: |-
+          【手动测试】查看项目：oc get projects
         scored: false
 
       - id: 6.4
-        text: "Create network segmentation using the Multi-tenant plugin or Network Policies"
+        text: "使用多租户插件或网络策略创建网络分割。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Verify on masters the plugin being used:
-          grep networkPluginName /etc/origin/master/master-config.yaml
-
-          OpenShift provides multi-tenant networking isolation (using Open vSwich and
-          vXLAN), to segregate network traffic between containers belonging to different
-          tenants (users or applications) while running on a shared cluster. Red Hat also
-          works with 3rd-party SDN vendors to provide the same level of capabilities
-          integrated with OpenShift. OpenShift SDN is included a part of OpenShift
-          subscription.
-
-          OpenShift supports Kubernetes NetworkPolicy. Administrator must configure
-          NetworkPolicies if desired.
-
-          https://docs.openshift.com/container-platform/3.10/architecture/networking/sdn.html#architecture-additional-concepts-sdn
-
-          Ansible Inventory variable: os_sdn_network_plugin_name:
-          https://docs.openshift.com/container-platform/3.10/install/configuring_inventory_file.html
+        remediation: |-
+          [手动测试]验证主节点上正在使用的插件：grep networkPluginName /etc/origin/master/master-config.yamlOpenShift 提供多租户网络隔离（使用 Open vSwitch 和 VXLAN），以在共享集群上运行时隔离属于不同租户（用户或应用程序）的容器之间的网络流量。Red Hat 还与第三方SDN供应商合作，提供与 OpenShift 集成的相同级别的功能。OpenShift SDN 是作为 OpenShift 订阅的一部分包含在其中的。OpenShift 支持 Kubernetes NetworkPolicy。如果需要，管理员必须配置 NetworkPolicies。Ansible Inventory 变量: os_sdn_network_plugin_name:https://docs.openshift.com/container-platform/3.10/install/configuring_inventory_file.html
         scored: false
 
       - id: 6.5
-        text: "Enable seccomp and configure custom Security Context Constraints"
+        text: "启用 Seccomp 并配置自定义安全上下文约束。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Verify SCCs that have been configured with seccomp:
-          oc get scc -ocustom-columns=NAME:.metadata.name,SECCOMP-PROFILES:.seccompProfiles
-
-          OpenShift does not enable seccomp by default. To configure seccomp profiles that
-          are applied to pods run by the SCC, follow the instructions in the
-          documentation:
-
-          https://docs.openshift.com/container-platform/3.9/admin_guide/seccomp.html#admin-guide-seccomp
+        remediation: |-
+          【手动测试】验证已配置 seccomp 的 SCC：oc get scc --ocustom-columns=NAME:.metadata.name,SECCOMP-PROFILES:.seccompProfilesOpenShift 默认情况下不启用 seccomp。要配置应用于由 SCC 运行的 pod 的 seccomp profiles，请按照文档中的说明进行操作：https://docs.openshift.com/container-platform/3.9/admin_guide/seccomp.html#admin-guide-seccomp
         scored: false
 
       - id: 6.6
-        text: "Review Security Context Constraints"
+        text: "审查安全上下文约束（Security Context Constraints）。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Review SCCs:
-          oc describe scc
-
-          Use OpenShift's Security Context Constraint feature, which has been contributed
-          to Kubernetes as Pod Security Policies. PSPs are still beta in Kubernetes 1.10.
-
-          OpenShift ships with two SCCs: restricted and privileged. The two default SCCs
-          will be created when the master is started. The restricted SCC is granted to
-          all authenticated users by default.
-
-          All pods are run under the restricted SCC by default. Running a pod under any
-          other SCC requires an account with cluster admin capabilities to grant access
-          for the service account.
-
-          SecurityContextConstraints limit what securityContext is applied to pods and
-          containers.
-
-          https://docs.openshift.com/container-platform/3.10/admin_guide/manage_scc.html
+        remediation: |-
+          【手动测试】审查 SCCs：oc describe scc使用 OpenShift 的安全上下文约束（Security Context Constraint，SCC）功能，该功能已经被贡献给 Kubernetes 作为 Pod 安全策略（Pod Security Policies，PSP）。在 Kubernetes 1.10 中，PSP 仍处于 beta 阶段。OpenShift 预装有两个 SCCs：restricted 和 privileged。在主节点启动时将创建这两个默认的 SCCs。默认情况下，authenticated 用户都被授予 restricted SCC。默认情况下，所有 pod 都在 restricted SCC 下运行。要在任何其他 SCC 下运行 pod，需要具有集群管理员权限的账户来授予服务账户访问权限。SecurityContextConstraints 限制了应用于 pod 和容器的 securityContext。https://docs.openshift.com/container-platform/3.10/admin_guide/manage_scc.html
         scored: false
 
       - id: 6.7
-        text: "Manage Image Provenance using ImagePolicyWebhook admission controller"
+        text: "使用 ImagePolicyWebhook 出入控制器来管理镜像来源。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          Review imagePolicyConfig in /etc/origin/master/master-config.yaml.
+        remediation: |-
+          【手动测试】查看 `/etc/origin/master/master-config.yaml` 中的 `imagePolicyConfig` 配置。
         scored: false
 
       - id: 6.8
-        text: "Configure Network policies as appropriate"
+        text: "根据需要配置网络策略。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          If ovs-networkplugin is used, review network policies:
-          oc get networkpolicies
-
-          OpenShift supports Kubernetes NetworkPolicy via ovs-networkpolicy plugin.
-          If choosing ovs-multitenant plugin, each namespace is isolated in its own
-          netnamespace by default.
+        remediation: |-
+          【手动测试】如果使用 ovs-networkplugin，请查看网络策略：oc get networkpoliciesOpenShift 支持通过 ovs-networkpolicy 插件实现 Kubernetes NetworkPolicy。如果选择 ovs-multitenant 插件，默认情况下每个命名空间在自己的 netnamespace 中进行隔离。
         scored: false
 
       - id: 6.9
-        text: "Use Security Context Constraints as compensating controls for privileged containers"
+        text: "将安全上下文约束（Security Context Constraints）用作特权容器的补偿控制。"
         type: "manual"
-        remediation: |
-          [Manual test]
-          1) Determine all sccs allowing privileged containers:
-             oc get scc -ocustom-columns=NAME:.metadata.name,ALLOWS_PRIVILEGED:.allowPrivilegedContainer
-          2) Review users and groups assigned to sccs allowing priviliged containers:
-             oc describe sccs <from (1)>
-
-          Use OpenShift's Security Context Constraint feature, which has been contributed
-          to Kubernetes as Pod Security Policies. PSPs are still beta in Kubernetes 1.10.
-
-          OpenShift ships with two SCCs: restricted and privileged. The two default SCCs
-          will be created when the master is started. The restricted SCC is granted to all
-          authenticated users by default.
-
-          Similar scenarios are documented in the SCC
-          documentation, which outlines granting SCC access to specific serviceaccounts.
-          Administrators may create least-restrictive SCCs based on individual container
-          needs.
-
-          For example, if a container only requires running as the root user, the anyuid
-          SCC can be used, which will not expose additional access granted by running
-          privileged containers.
-
-          https://docs.openshift.com/container-platform/3.10/admin_guide/manage_scc.html
+        remediation: |-
+          【手动测试】1) 确定所有允许特权容器的 SCCs：   oc get scc -ocustom-columns=NAME:.metadata.name,ALLOWS_PRIVILEGED:.allowPrivilegedContainer2) 查看分配给允许使用特权容器的 SCCs 的用户和组：   oc describe sccs <来自（1）>使用 OpenShift 的安全上下文约束（Security Context Constraint）功能，该功能已经贡献给 Kubernetes 作为 Pod 安全策略（Pod Security Policies）。在 Kubernetes 1.10 中，PSPs 仍处于 beta 阶段。OpenShift 默认提供了两个 SCCs：restricted 和 privileged。这两个默认的 SCCs 会在启动主节点时创建。默认情况下，restricted SCC 授予所有经过认证的用户。类似的场景在 SCC 文档中有所说明，该文档概述了授予 SCC 访问权限给特定 serviceaccounts 的过程。管理员可以根据个别容器的需求创建最宽松的 SCCs。例如，如果一个容器只需以 root 用户身份运行，可以使用 anyuid SCC，这不会暴露通过运行特权容器授予的其他访问权限。链接：https://docs.openshift.com/container-platform/3.10/admin_guide/manage_scc.html
         scored: false
