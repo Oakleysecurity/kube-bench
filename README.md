@@ -18,59 +18,19 @@
 
 <img src="docs/images/kube-bench.png" width="200" alt="kube-bench logo">
 
-kube-bench is a tool that checks whether Kubernetes is deployed securely by running the checks documented in the [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes/).
+> kube-bench is a tool that checks whether Kubernetes is deployed securely by running the checks documented in the [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes/).
+>
+> Tests are configured with YAML files, making this tool easy to update as test specifications evolve.
 
-Tests are configured with YAML files, making this tool easy to update as test specifications evolve.
+本项目对开源的[kube-bench](https://github.com/aquasecurity/kube-bench)做了汉化，方便日常工作处理。对于扫描结果的汉化，是通过编写python脚本调用chat-gpt 3.5的API对配置文件内容做了英译中，然后替换了对应的text和remediation字段内容。
 
-![Kubernetes Bench for Security](/docs/images/output.png "Kubernetes Bench for Security")
+- 命令参数注释汉化
+- 扫描结果汉化
 
-## CIS Scanning as part of Trivy and the Trivy Operator
+以下是命令参数的注释汉化效果图：
 
-[Trivy](https://github.com/aquasecurity/trivy), the all in one cloud native security scanner, can be deployed as a [Kubernetes Operator](https://github.com/aquasecurity/trivy-operator) inside a cluster.
-Both, the [Trivy CLI](https://github.com/aquasecurity/trivy), and the [Trivy Operator](https://github.com/aquasecurity/trivy-operator) support CIS Kubernetes Benchmark scanning among several other features.
+![image-20241204144555993](./docs/images/command-hanhua.png)
 
-## Quick start
+扫描结果汉化效果图：
 
-There are multiple ways to run kube-bench.
-You can run kube-bench inside a pod, but it will need access to the host's PID namespace in order to check the running processes, as well as access to some directories on the host where config files and other files are stored.
-
-The supplied `job.yaml` [file](job.yaml) can be applied to run the tests as a job. For example:
-
-```bash
-$ kubectl apply -f job.yaml
-job.batch/kube-bench created
-
-$ kubectl get pods
-NAME                      READY   STATUS              RESTARTS   AGE
-kube-bench-j76s9   0/1     ContainerCreating   0          3s
-
-# Wait for a few seconds for the job to complete
-$ kubectl get pods
-NAME                      READY   STATUS      RESTARTS   AGE
-kube-bench-j76s9   0/1     Completed   0          11s
-
-# The results are held in the pod's logs
-kubectl logs kube-bench-j76s9
-[INFO] 1 Master Node Security Configuration
-[INFO] 1.1 API Server
-...
-```
-For more information and different ways to run kube-bench see [documentation](docs/running.md)
-### Please Note
-
-1. kube-bench implements the [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes/) as closely as possible. Please raise issues here if kube-bench is not correctly implementing the test as described in the Benchmark. To report issues in the Benchmark itself (for example, tests that you believe are inappropriate), please join the [CIS community](https://cisecurity.org).
-
-1. There is not a one-to-one mapping between releases of Kubernetes and releases of the CIS benchmark. See [CIS Kubernetes Benchmark support](docs/platforms.md#cis-kubernetes-benchmark-support) to see which releases of Kubernetes are covered by different releases of the benchmark.
-
-
-By default, kube-bench will determine the test set to run based on the Kubernetes version running on the machine.
-- see the following documentation on [Running kube-bench](docs/running.md#running-kube-bench) for more details.
-
-
-## Contributing
-Kindly read [Contributing](CONTRIBUTING.md) before contributing. 
-We welcome PRs and issue reports.
-
-## Roadmap
-
-Going forward we plan to release updates to kube-bench to add support for new releases of the CIS Benchmark. Note that these are not released as frequently as Kubernetes releases.
+![image-20241204145338108](./docs/images/result-hanhua.png)
