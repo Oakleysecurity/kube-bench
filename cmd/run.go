@@ -15,17 +15,16 @@ import (
 func init() {
 	RootCmd.AddCommand(runCmd)
 	runCmd.Flags().StringSliceP("targets", "s", []string{},
-		`Specify targets of the benchmark to run. These names need to match the filenames in the cfg/<version> directory.
-	For example, to run the tests specified in master.yaml and etcd.yaml, specify --targets=master,etcd
-	If no targets are specified, run tests from all files in the cfg/<version> directory.
+		`指定要运行的基准测试的目标。这些名称需要与 cfg/<version> 目录中的文件名匹配。例如，要运行 master.yaml 和 etcd.yaml 中指定的测试，请指定 --targets=master,etcd
+	  如果没有指定目标，则从 cfg/<version> 目录中的所有文件运行测试。
 	`)
 }
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Run tests",
-	Long:  `Run tests. If no arguments are specified, runs tests from all files`,
+	Short: "运行测试",
+	Long:  `运行测试。如果未指定参数，则运行所有文件的测试`,
 	Run: func(cmd *cobra.Command, args []string) {
 		targets, err := cmd.Flags().GetStringSlice("targets")
 		if err != nil {

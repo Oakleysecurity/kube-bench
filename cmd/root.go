@@ -159,39 +159,39 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// Output control
-	RootCmd.PersistentFlags().IntVar(&exitCode, "exit-code", 0, "Specify the exit code for when checks fail")
-	RootCmd.PersistentFlags().BoolVar(&noResults, "noresults", false, "Disable printing of results section")
-	RootCmd.PersistentFlags().BoolVar(&noSummary, "nosummary", false, "Disable printing of summary section")
-	RootCmd.PersistentFlags().BoolVar(&noRemediations, "noremediations", false, "Disable printing of remediations section")
-	RootCmd.PersistentFlags().BoolVar(&noTotals, "nototals", false, "Disable printing of totals for failed, passed, ... checks across all sections")
-	RootCmd.PersistentFlags().BoolVar(&jsonFmt, "json", false, "Prints the results as JSON")
-	RootCmd.PersistentFlags().BoolVar(&junitFmt, "junit", false, "Prints the results as JUnit")
-	RootCmd.PersistentFlags().BoolVar(&pgSQL, "pgsql", false, "Save the results to PostgreSQL")
-	RootCmd.PersistentFlags().BoolVar(&aSFF, "asff", false, "Send the results to AWS Security Hub")
-	RootCmd.PersistentFlags().BoolVar(&filterOpts.Scored, "scored", true, "Run the scored CIS checks")
-	RootCmd.PersistentFlags().BoolVar(&filterOpts.Unscored, "unscored", true, "Run the unscored CIS checks")
-	RootCmd.PersistentFlags().StringVar(&skipIds, "skip", "", "List of comma separated values of checks to be skipped")
-	RootCmd.PersistentFlags().BoolVar(&includeTestOutput, "include-test-output", false, "Prints the actual result when test fails")
-	RootCmd.PersistentFlags().StringVar(&outputFile, "outputfile", "", "Writes the results to output file when run with --json or --junit")
+	RootCmd.PersistentFlags().IntVar(&exitCode, "exit-code", 0, "指定检查失败时的退出代码")
+	RootCmd.PersistentFlags().BoolVar(&noResults, "noresults", false, "禁用打印结果部分")
+	RootCmd.PersistentFlags().BoolVar(&noSummary, "nosummary", false, "禁用打印摘要部分")
+	RootCmd.PersistentFlags().BoolVar(&noRemediations, "noremediations", false, "禁用修复措施部分的打印")
+	RootCmd.PersistentFlags().BoolVar(&noTotals, "nototals", false, "禁止打印所有部分检查失败、通过等的总数")
+	RootCmd.PersistentFlags().BoolVar(&jsonFmt, "json", false, "将结果打印为 JSON")
+	RootCmd.PersistentFlags().BoolVar(&junitFmt, "junit", false, "将结果打印为 JUnit")
+	RootCmd.PersistentFlags().BoolVar(&pgSQL, "pgsql", false, "将结果保存到 PostgreSQL")
+	RootCmd.PersistentFlags().BoolVar(&aSFF, "asff", false, "将结果发送到 AWS Security Hub")
+	RootCmd.PersistentFlags().BoolVar(&filterOpts.Scored, "scored", true, "运行评分的 CIS 检查 (default true)")
+	RootCmd.PersistentFlags().BoolVar(&filterOpts.Unscored, "unscored", true, "运行未评分的 CIS 检查 (default true)")
+	RootCmd.PersistentFlags().StringVar(&skipIds, "skip", "", "要跳过的检查的逗号分隔值列表")
+	RootCmd.PersistentFlags().BoolVar(&includeTestOutput, "include-test-output", false, "测试失败时打印实际结果")
+	RootCmd.PersistentFlags().StringVar(&outputFile, "outputfile", "", "使用 --json 或 --junit 运行时将结果写入输出文件")
 
 	RootCmd.PersistentFlags().StringVarP(
 		&filterOpts.CheckList,
 		"check",
 		"c",
 		"",
-		`A comma-delimited list of checks to run as specified in CIS document. Example --check="1.1.1,1.1.2"`,
+		`按照 CIS 文档中指定的方式运行的以逗号分隔的检查列表。示例 --check="1.1.1,1.1.2"`,
 	)
 	RootCmd.PersistentFlags().StringVarP(
 		&filterOpts.GroupList,
 		"group",
 		"g",
 		"",
-		`Run all the checks under this comma-delimited list of groups. Example --group="1.1"`,
+		`运行此逗号分隔的组列表下的所有检查。示例 --group="1.1"`,
 	)
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./cfg/config.yaml)")
-	RootCmd.PersistentFlags().StringVarP(&cfgDir, "config-dir", "D", cfgDir, "config directory")
-	RootCmd.PersistentFlags().StringVar(&kubeVersion, "version", "", "Manually specify Kubernetes version, automatically detected if unset")
-	RootCmd.PersistentFlags().StringVar(&benchmarkVersion, "benchmark", "", "Manually specify CIS benchmark version. It would be an error to specify both --version and --benchmark flags")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "配置文件 (默认为 ./cfg/config.yaml)")
+	RootCmd.PersistentFlags().StringVarP(&cfgDir, "config-dir", "D", cfgDir, "配置文件目录")
+	RootCmd.PersistentFlags().StringVar(&kubeVersion, "version", "", "手动指定 Kubernetes 版本，若未设置则自动检测")
+	RootCmd.PersistentFlags().StringVar(&benchmarkVersion, "benchmark", "", "手动指定 CIS 基准版本。注意：同时指定 --version 和 --benchmark 标志会出错")
 
 	if err := goflag.Set("logtostderr", "true"); err != nil {
 		fmt.Printf("unable to set logtostderr: %+v\n", err)
